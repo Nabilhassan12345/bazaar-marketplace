@@ -1,0 +1,3 @@
+class ImagePickerHelper {
+  const ImagePickerHelper();
+}

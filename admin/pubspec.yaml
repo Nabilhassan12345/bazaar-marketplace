@@ -1,0 +1,31 @@
+name: admin
+description: Bazaar admin dashboard (Flutter Web).
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.2
+  cloud_firestore: ^5.6.6
+  flutter_riverpod: ^2.6.1
+  intl: ^0.20.2
+  data_table_2: ^2.5.15
+  marketplace_shared:
+    path: ../packages/marketplace_shared
+  bazaar:
+    path: ..
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

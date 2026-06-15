@@ -1,0 +1,223 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ───────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && userDoc().data.role == 'admin';
+    }
+
+    function isModeratorOrAdmin() {
+      return isSignedIn()
+        && userDoc().data.role in ['admin', 'moderator'];
+    }
+
+    function isNotBlocked() {
+      return isSignedIn()
+        && userDoc().data.isBlocked == false;
+    }
+
+    function validListingStatus(status) {
+      return status in ['draft', 'pending_review', 'approved', 'rejected'];
+    }
+
+    function validUserRole(role) {
+      return role in ['user', 'moderator', 'admin'];
+    }
+
+    function validReportType(type) {
+      return type in ['listing', 'user'];
+    }
+
+    function validReportReason(reason) {
+      return reason in ['spam', 'fraud', 'inappropriate', 'wrong_category', 'other'];
+    }
+
+    function validReportStatus(status) {
+      return status in ['open', 'pending', 'reviewed', 'resolved', 'dismissed'];
+    }
+
+    // ONE-TIME bootstrap: remove after running `dart run tool/promote_admin.dart`
+    function isBootstrapAdmin(uid) {
+      return uid == 'Sgue66y7EANCYj6mLFjFkpOtD572';
+    }
+
+    // ─── users ─────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isSignedIn();
+
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll([
+          'email', 'displayName', 'role', 'isBlocked',
+          'listingCount', 'approvedListingCount',
+          'emailVerified', 'phoneVerified', 'createdAt', 'updatedAt'
+        ])
+        && (
+          (request.resource.data.role == 'user'
+            && request.resource.data.isBlocked == false
+            && request.resource.data.listingCount == 0
+            && request.resource.data.approvedListingCount == 0)
+          || (isBootstrapAdmin(userId)
+            && request.resource.data.role == 'admin'
+            && request.resource.data.isBlocked == false)
+        );
+
+      allow update: if isOwner(userId)
+        && isNotBlocked()
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.isBlocked == resource.data.isBlocked
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly([
+            'displayName', 'phone', 'photoUrl', 'cityId', 'bio',
+            'preferredLanguage', 'notificationSettings',
+            'updatedAt', 'lastActiveAt', 'emailVerified', 'phoneVerified'
+          ])
+        || (isOwner(userId)
+          && isBootstrapAdmin(userId)
+          && resource.data.role == 'user'
+          && request.resource.data.role == 'admin'
+          && request.resource.data.isBlocked == resource.data.isBlocked
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['role', 'updatedAt']))
+        || isAdmin();
+
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ─── categories ────────────────────────────────────────────
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── cities ────────────────────────────────────────────────
+    match /cities/{cityId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── listings ──────────────────────────────────────────────
+    match /listings/{listingId} {
+      allow read: if resource.data.status == 'approved'
+        && resource.data.isDeleted == false
+        || isSignedIn() && (
+          resource.data.sellerId == request.auth.uid
+          || isModeratorOrAdmin()
+        );
+
+      allow create: if isSignedIn()
+        && isNotBlocked()
+        && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.status == 'draft'
+        && validListingStatus(request.resource.data.status)
+        && request.resource.data.isDeleted == false
+        && request.resource.data.viewCount == 0
+        && request.resource.data.favoriteCount == 0
+        || (isAdmin()
+          && validListingStatus(request.resource.data.status)
+          && request.resource.data.isDeleted == false);
+
+      allow update: if isSignedIn() && isNotBlocked() && (
+        // Owner: edit drafts/rejected; submit for review
+        (resource.data.sellerId == request.auth.uid
+          && resource.data.status in ['draft', 'rejected']
+          && request.resource.data.status in ['draft', 'pending_review']
+          && request.resource.data.sellerId == resource.data.sellerId
+          && request.resource.data.reviewedBy == resource.data.reviewedBy
+          && request.resource.data.reviewedAt == resource.data.reviewedAt
+          && request.resource.data.approvedAt == resource.data.approvedAt
+          && request.resource.data.rejectionReason == resource.data.rejectionReason)
+        ||
+        // Owner: soft-delete own listing
+        (resource.data.sellerId == request.auth.uid
+          && request.resource.data.isDeleted == true
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isDeleted', 'updatedAt']))
+        ||
+        // Owner: edit pending review listing content
+        (resource.data.sellerId == request.auth.uid
+          && resource.data.status == 'pending_review'
+          && request.resource.data.status == 'pending_review'
+          && request.resource.data.sellerId == resource.data.sellerId)
+        ||
+        // Admin/Moderator: approve, reject, moderate
+        (isModeratorOrAdmin()
+          && validListingStatus(request.resource.data.status))
+        ||
+        // Anyone signed in: increment viewCount only (via transaction in app)
+        (isSignedIn()
+          && resource.data.status == 'approved'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount', 'updatedAt'])
+          && request.resource.data.viewCount == resource.data.viewCount + 1)
+      );
+
+      allow delete: if isAdmin()
+        || (isSignedIn()
+          && resource.data.sellerId == request.auth.uid);
+    }
+
+    // ─── favorites ─────────────────────────────────────────────
+    match /favorites/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /items/{listingId} {
+        allow read, write: if isOwner(userId)
+          && isNotBlocked();
+      }
+    }
+
+    // ─── reports ───────────────────────────────────────────────
+    match /reports/{reportId} {
+      allow read: if isModeratorOrAdmin()
+        || (isSignedIn() && resource.data.reporterId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isNotBlocked()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.status == 'open'
+        && validReportType(request.resource.data.type)
+        && validReportReason(request.resource.data.reason)
+        && (
+          (request.resource.data.type == 'listing'
+            && request.resource.data.listingId != null)
+          || (request.resource.data.type == 'user'
+            && request.resource.data.reportedUserId != null)
+        );
+
+      allow update: if isModeratorOrAdmin()
+        && validReportStatus(request.resource.data.status);
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── blocks ────────────────────────────────────────────────
+    match /blocks/{userId} {
+      allow read: if isOwner(userId);
+
+      match /blocked/{blockedUserId} {
+        allow read: if isOwner(userId);
+
+        allow create: if isOwner(userId)
+          && isNotBlocked()
+          && blockedUserId != userId
+          && request.resource.data.keys().hasAll(['blockedAt']);
+
+        allow delete: if isOwner(userId);
+
+        allow update: if false;
+      }
+    }
+  }
+}

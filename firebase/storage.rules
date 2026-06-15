@@ -1,0 +1,46 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024; // 5 MB
+    }
+
+    match /listings/{listingId}/{fileName} {
+      allow read: if true;
+      allow write: if isSignedIn()
+        && isValidImage()
+        && firestore.get(/databases/(default)/documents/listings/$(listingId)).data.sellerId == request.auth.uid;
+      allow delete: if isSignedIn()
+        && (firestore.get(/databases/(default)/documents/listings/$(listingId)).data.sellerId == request.auth.uid
+          || isAdmin());
+    }
+
+    match /users/{userId}/avatar.jpg {
+      allow read: if true;
+      allow write: if isSignedIn()
+        && request.auth.uid == userId
+        && isValidImage();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /categories/{categoryId}/{fileName} {
+      allow read: if true;
+      allow write, delete: if isAdmin();
+    }
+  }
+}

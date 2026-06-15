@@ -1,0 +1,3 @@
+class CityRemoteDatasource {
+  const CityRemoteDatasource();
+}

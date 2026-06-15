@@ -1,0 +1,9 @@
+{
+  "name": "Bazaar Admin",
+  "short_name": "Bazaar Admin",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1E3A8A",
+  "theme_color": "#1E3A8A",
+  "description": "Bazaar marketplace admin dashboard."
+}

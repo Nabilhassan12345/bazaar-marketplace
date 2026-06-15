@@ -1,0 +1,3 @@
+class FavoriteEntity {
+  const FavoriteEntity();
+}

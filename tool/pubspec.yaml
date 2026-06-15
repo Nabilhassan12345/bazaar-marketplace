@@ -1,0 +1,11 @@
+name: bazaar_seed
+description: Firestore seed script for the Bazaar marketplace.
+publish_to: none
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  http: ^1.2.2
+  marketplace_shared:
+    path: ../packages/marketplace_shared

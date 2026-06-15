@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "bazaar-dev-e4d92"
+  },
+  "targets": {
+    "bazaar-dev-e4d92": {
+      "hosting": {
+        "admin": [
+          "bazaar-dev-e4d92"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

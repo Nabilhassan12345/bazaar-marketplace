@@ -1,0 +1,3 @@
+class CityEntity {
+  const CityEntity();
+}

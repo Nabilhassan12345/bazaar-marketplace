@@ -1,0 +1,3 @@
+class BlockEntity {
+  const BlockEntity();
+}

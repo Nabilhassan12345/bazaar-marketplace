@@ -1,0 +1,3 @@
+class ReportEntity {
+  const ReportEntity();
+}

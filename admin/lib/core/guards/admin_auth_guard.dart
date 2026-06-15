@@ -1,0 +1,3 @@
+class AdminAuthGuard {
+  const AdminAuthGuard();
+}
