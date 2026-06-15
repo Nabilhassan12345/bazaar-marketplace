@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/features/listings/presentation/providers/admin_listings_provider.dart';
 import 'package:admin/features/listings/presentation/widgets/listing_detail_panel.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -22,11 +23,13 @@ class _ListingsManagementPageState
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
+    final localeCode = ref.watch(adminLocaleProvider).code;
     final listingsAsync = ref.watch(adminListingsProvider);
 
     return listingsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error: (error, _) => Center(child: Text(s.errorWithDetails('$error'))),
       data: (rawListings) {
         final sorted = sortListingsDefault(rawListings);
         final listings = filterListingsByStatus(sorted, _statusFilter);
@@ -38,11 +41,13 @@ class _ListingsManagementPageState
               children: [
                 _StatusTabs(
                   selected: _statusFilter,
+                  strings: s,
                   onChanged: (status) => setState(() => _statusFilter = status),
                 ),
                 if (_selectedIds.isNotEmpty)
                   _BulkActionsBar(
                     count: _selectedIds.length,
+                    strings: s,
                     onApprove: () => _bulkApprove(),
                     onReject: () => _bulkReject(),
                     onClear: () => setState(_selectedIds.clear),
@@ -57,17 +62,17 @@ class _ListingsManagementPageState
                       headingRowColor: WidgetStateProperty.all(
                         Colors.grey.shade100,
                       ),
-                      columns: const [
-                        DataColumn2(label: Text(''), fixedWidth: 48),
-                        DataColumn2(label: Text(''), fixedWidth: 56),
-                        DataColumn2(label: Text('Title'), size: ColumnSize.L),
-                        DataColumn2(label: Text('Category'), size: ColumnSize.S),
-                        DataColumn2(label: Text('City'), size: ColumnSize.S),
-                        DataColumn2(label: Text('Price'), size: ColumnSize.S),
-                        DataColumn2(label: Text('Owner'), size: ColumnSize.M),
-                        DataColumn2(label: Text('Status'), size: ColumnSize.S),
-                        DataColumn2(label: Text('Date'), size: ColumnSize.S),
-                        DataColumn2(label: Text('Actions'), fixedWidth: 220),
+                      columns: [
+                        const DataColumn2(label: Text(''), fixedWidth: 48),
+                        const DataColumn2(label: Text(''), fixedWidth: 56),
+                        DataColumn2(label: Text(s.title), size: ColumnSize.L),
+                        DataColumn2(label: Text(s.category), size: ColumnSize.S),
+                        DataColumn2(label: Text(s.city), size: ColumnSize.S),
+                        DataColumn2(label: Text(s.price), size: ColumnSize.S),
+                        DataColumn2(label: Text(s.owner), size: ColumnSize.M),
+                        DataColumn2(label: Text(s.status), size: ColumnSize.S),
+                        DataColumn2(label: Text(s.date), size: ColumnSize.S),
+                        DataColumn2(label: Text(s.actions), fixedWidth: 220),
                       ],
                       rows: listings.map((listing) {
                         final date =
@@ -105,13 +110,24 @@ class _ListingsManagementPageState
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            DataCell(Text(listing.category.label)),
-                            DataCell(Text(listing.city)),
+                            DataCell(
+                              Text(listing.category.localizedLabel(s)),
+                            ),
+                            DataCell(
+                              Text(
+                                MarketGeography.localityLabel(
+                                  listing.city,
+                                  localeCode,
+                                ),
+                              ),
+                            ),
                             DataCell(
                               Text('\$${listing.price.toStringAsFixed(0)}'),
                             ),
                             DataCell(Text(listing.ownerName)),
-                            DataCell(_StatusChip(status: listing.status)),
+                            DataCell(
+                              _StatusChip(status: listing.status, strings: s),
+                            ),
                             DataCell(Text(date)),
                             DataCell(
                               Row(
@@ -120,15 +136,15 @@ class _ListingsManagementPageState
                                   if (listing.status != ListingStatus.approved)
                                     TextButton(
                                       onPressed: () => _approve(listing.id),
-                                      child: const Text('Approve'),
+                                      child: Text(s.approve),
                                     ),
                                   if (listing.status != ListingStatus.rejected)
                                     TextButton(
                                       onPressed: () => _reject(listing.id),
-                                      child: const Text('Reject'),
+                                      child: Text(s.reject),
                                     ),
                                   IconButton(
-                                    tooltip: 'Delete',
+                                    tooltip: s.deleteAction,
                                     icon: const Icon(
                                       Icons.delete_outline,
                                       color: Colors.red,
@@ -195,22 +211,21 @@ class _ListingsManagementPageState
   }
 
   Future<void> _delete(ListingModel listing) async {
+    final s = ref.str;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete listing?'),
-        content: Text(
-          'Permanently delete "${listing.title}"? This cannot be undone.',
-        ),
+        title: Text(s.deleteListingTitle),
+        content: Text(s.deleteListingAdminConfirm(listing.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(s.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(s.deleteAction),
           ),
         ],
       ),
@@ -229,10 +244,12 @@ class _ListingsManagementPageState
 class _StatusTabs extends StatelessWidget {
   const _StatusTabs({
     required this.selected,
+    required this.strings,
     required this.onChanged,
   });
 
   final ListingStatus? selected;
+  final BazaarStrings strings;
   final ValueChanged<ListingStatus?> onChanged;
 
   @override
@@ -240,19 +257,19 @@ class _StatusTabs extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: SegmentedButton<ListingStatus?>(
-        segments: const [
-          ButtonSegment(value: null, label: Text('All')),
+        segments: [
+          ButtonSegment(value: null, label: Text(strings.all)),
           ButtonSegment(
             value: ListingStatus.pendingReview,
-            label: Text('Pending'),
+            label: Text(strings.listingStatus('pending_review')),
           ),
           ButtonSegment(
             value: ListingStatus.approved,
-            label: Text('Approved'),
+            label: Text(strings.listingStatus('approved')),
           ),
           ButtonSegment(
             value: ListingStatus.rejected,
-            label: Text('Rejected'),
+            label: Text(strings.listingStatus('rejected')),
           ),
         ],
         selected: {selected},
@@ -265,12 +282,14 @@ class _StatusTabs extends StatelessWidget {
 class _BulkActionsBar extends StatelessWidget {
   const _BulkActionsBar({
     required this.count,
+    required this.strings,
     required this.onApprove,
     required this.onReject,
     required this.onClear,
   });
 
   final int count;
+  final BazaarStrings strings;
   final VoidCallback onApprove;
   final VoidCallback onReject;
   final VoidCallback onClear;
@@ -283,19 +302,22 @@ class _BulkActionsBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            Text('$count selected'),
+            Text(strings.selectedCount(count)),
             const SizedBox(width: 16),
             FilledButton(
               onPressed: onApprove,
-              child: const Text('Approve selected'),
+              child: Text(strings.approveSelected),
             ),
             const SizedBox(width: 8),
             OutlinedButton(
               onPressed: onReject,
-              child: const Text('Reject selected'),
+              child: Text(strings.rejectSelected),
             ),
             const Spacer(),
-            TextButton(onPressed: onClear, child: const Text('Clear')),
+            TextButton(
+              onPressed: onClear,
+              child: Text(strings.clearFilters),
+            ),
           ],
         ),
       ),
@@ -341,17 +363,19 @@ class _Thumbnail extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.status, required this.strings});
 
   final ListingStatus status;
+  final BazaarStrings strings;
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = switch (status) {
-      ListingStatus.pendingReview => ('Pending', Colors.amber.shade800),
-      ListingStatus.approved => ('Approved', Colors.green.shade700),
-      ListingStatus.rejected => ('Rejected', Colors.red.shade700),
-      ListingStatus.draft => ('Draft', Colors.grey.shade700),
+    final label = strings.listingStatus(status.value);
+    final color = switch (status) {
+      ListingStatus.pendingReview => Colors.amber.shade800,
+      ListingStatus.approved => Colors.green.shade700,
+      ListingStatus.rejected => Colors.red.shade700,
+      ListingStatus.draft => Colors.grey.shade700,
     };
 
     return Container(

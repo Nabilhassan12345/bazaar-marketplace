@@ -1,7 +1,9 @@
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RecentSearchesChips extends StatelessWidget {
+class RecentSearchesChips extends ConsumerWidget {
   const RecentSearchesChips({
     required this.searches,
     required this.onTap,
@@ -14,19 +16,21 @@ class RecentSearchesChips extends StatelessWidget {
   final ValueChanged<String> onRemove;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (searches.isEmpty) {
       return const SizedBox.shrink();
     }
 
+    final s = ref.str;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Text(
-            'Recent searches',
-            style: TextStyle(
+            s.recentSearches,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,

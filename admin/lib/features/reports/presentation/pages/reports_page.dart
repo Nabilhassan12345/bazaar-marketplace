@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/features/reports/presentation/providers/admin_reports_provider.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class ReportsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final reportsAsync = ref.watch(adminReportsProvider);
     final controller = ref.read(adminReportsControllerProvider);
 
@@ -19,11 +21,11 @@ class ReportsPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Failed to load reports: $error'),
+            Text('${s.failedToLoadReports}: $error'),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: () => ref.invalidate(adminReportsProvider),
-              child: const Text('Retry'),
+              child: Text(s.retry),
             ),
           ],
         ),
@@ -34,15 +36,15 @@ class ReportsPage extends ConsumerWidget {
             .toList();
 
         if (openReports.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.flag_outlined, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
+                const Icon(Icons.flag_outlined, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
                 Text(
-                  'No open reports',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  s.noOpenReports,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -56,23 +58,23 @@ class ReportsPage extends ConsumerWidget {
             horizontalMargin: 12,
             minWidth: 900,
             headingRowColor: WidgetStateProperty.all(Colors.grey.shade100),
-            columns: const [
-              DataColumn2(label: Text('Type'), size: ColumnSize.S),
-              DataColumn2(label: Text('Reason'), size: ColumnSize.S),
-              DataColumn2(label: Text('Subject'), size: ColumnSize.L),
-              DataColumn2(label: Text('Details'), size: ColumnSize.L),
-              DataColumn2(label: Text('Date'), size: ColumnSize.S),
-              DataColumn2(label: Text('Actions'), size: ColumnSize.M),
+            columns: [
+              DataColumn2(label: Text(s.type), size: ColumnSize.S),
+              DataColumn2(label: Text(s.reportReason), size: ColumnSize.S),
+              DataColumn2(label: Text(s.subject), size: ColumnSize.L),
+              DataColumn2(label: Text(s.details), size: ColumnSize.L),
+              DataColumn2(label: Text(s.date), size: ColumnSize.S),
+              DataColumn2(label: Text(s.actions), size: ColumnSize.M),
             ],
             rows: openReports.map((report) {
               final subject = report.type == ReportSubjectType.listing
-                  ? 'Listing ${report.listingId ?? '-'}'
-                  : 'User ${report.reportedUserId ?? '-'}';
+                  ? s.reportSubjectListing(report.listingId ?? '-')
+                  : s.reportSubjectUser(report.reportedUserId ?? '-');
 
               return DataRow2(
                 cells: [
-                  DataCell(Text(report.type.value)),
-                  DataCell(Text(report.reason.label)),
+                  DataCell(Text(s.reportSubjectTypeLabel(report.type.value))),
+                  DataCell(Text(report.reason.localizedLabel(s))),
                   DataCell(
                     Text(
                       subject,
@@ -96,12 +98,12 @@ class ReportsPage extends ConsumerWidget {
                         TextButton(
                           onPressed: () =>
                               controller.resolveReport(report.id),
-                          child: const Text('Resolve'),
+                          child: Text(s.resolve),
                         ),
                         TextButton(
                           onPressed: () =>
                               controller.dismissReport(report.id),
-                          child: const Text('Dismiss'),
+                          child: Text(s.dismiss),
                         ),
                       ],
                     ),

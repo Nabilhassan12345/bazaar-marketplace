@@ -1,4 +1,5 @@
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_providers.dart';
 import 'package:bazaar/features/blocks/presentation/providers/block_providers.dart';
@@ -25,6 +26,7 @@ class SellerProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final currentUser = ref.watch(authStateChangesProvider).valueOrNull;
     final isOwnProfile = currentUser?.id == userId;
     final profileAsync = ref.watch(userProfileProvider(userId));
@@ -33,7 +35,7 @@ class SellerProfilePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seller Profile'),
+        title: Text(s.sellerProfile),
         actions: [
           if (!isOwnProfile)
             PopupMenuButton<String>(
@@ -52,15 +54,15 @@ class SellerProfilePage extends ConsumerWidget {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'report',
-                  child: Text('Report this seller'),
+                  child: Text(s.reportThisSeller),
                 ),
                 PopupMenuItem(
                   value: 'block',
                   enabled: !blockedIds.contains(userId),
                   child: Text(
-                    blockedIds.contains(userId) ? 'Blocked' : 'Block this user',
+                    blockedIds.contains(userId) ? s.blocked : s.blockThisUser,
                   ),
                 ),
               ],
@@ -81,7 +83,7 @@ class SellerProfilePage extends ConsumerWidget {
         ),
         data: (owner) {
           if (owner == null) {
-            return const Center(child: Text('Seller not found.'));
+            return Center(child: Text(s.sellerNotFound));
           }
 
           final memberSince = DateFormat.yMMMM().format(owner.createdAt);
@@ -124,12 +126,12 @@ class SellerProfilePage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Member since $memberSince',
+                          s.memberSince(memberSince),
                           style: const TextStyle(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${owner.listingCount} listings',
+                          s.sellerListingCount(owner.listingCount),
                           style: const TextStyle(color: AppColors.textSecondary),
                         ),
                       ],
@@ -138,9 +140,9 @@ class SellerProfilePage extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Listings',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              Text(
+                s.listingsCount,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
               listingsAsync.when(
@@ -158,9 +160,9 @@ class SellerProfilePage extends ConsumerWidget {
                 ),
                 data: (listings) {
                   if (listings.isEmpty) {
-                    return const EmptyStateView(
+                    return EmptyStateView(
                       icon: Icons.inventory_2_outlined,
-                      title: 'No active listings',
+                      title: s.noActiveListings,
                     );
                   }
 
@@ -189,21 +191,20 @@ class SellerProfilePage extends ConsumerWidget {
     WidgetRef ref,
     String displayName,
   ) async {
+    final s = ref.str;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Block $displayName?'),
-        content: const Text(
-          "Their listings won't appear in your feed.",
-        ),
+        title: Text(s.blockUserTitle(displayName)),
+        content: Text(s.blockUserMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(s.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Block'),
+            child: Text(s.block),
           ),
         ],
       ),
@@ -218,7 +219,7 @@ class SellerProfilePage extends ConsumerWidget {
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$displayName blocked')),
+        SnackBar(content: Text(s.userBlocked(displayName))),
       );
     }
   }

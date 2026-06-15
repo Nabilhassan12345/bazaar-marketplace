@@ -1,5 +1,7 @@
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// @deprecated Use [EmptyStateView] instead.
 class EmptyState extends StatelessWidget {
@@ -76,18 +78,21 @@ class EmptyStateView extends StatelessWidget {
   }
 }
 
-class ErrorStateView extends StatelessWidget {
+class ErrorStateView extends ConsumerWidget {
   const ErrorStateView({
     required this.onRetry,
-    this.message = 'Something went wrong',
+    this.message,
     super.key,
   });
 
-  final String message;
+  final String? message;
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+    final displayMessage = message ?? s.error;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -97,7 +102,7 @@ class ErrorStateView extends StatelessWidget {
             Icon(Icons.wifi_off, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
-              message,
+              displayMessage,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 18,
@@ -108,7 +113,7 @@ class ErrorStateView extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(s.retry),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
               ),

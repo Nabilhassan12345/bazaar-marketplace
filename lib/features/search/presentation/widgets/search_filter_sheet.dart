@@ -192,7 +192,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                 children: [
                   for (final option in SearchSortOption.values)
                     RadioListTile<SearchSortOption>(
-                      title: Text(option.label),
+                      title: Text(option.localizedLabel(s)),
                       value: option,
                       contentPadding: EdgeInsets.zero,
                     ),

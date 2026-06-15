@@ -1,6 +1,8 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/features/reports/presentation/providers/report_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
 enum ReportTarget {
@@ -39,12 +41,7 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
     super.dispose();
   }
 
-  String get _title => switch (widget.target) {
-        ReportTarget.listing => 'Report this listing',
-        ReportTarget.user => 'Report this seller',
-      };
-
-  Future<void> _submit() async {
+  Future<void> _submit(BazaarStrings s) async {
     if (_selectedReason == null || _isSubmitting) return;
 
     setState(() => _isSubmitting = true);
@@ -76,25 +73,30 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
           SnackBar(
             content: Text(
               widget.target == ReportTarget.listing
-                  ? "Thanks — we'll review this listing"
-                  : "Thanks — we'll review this report",
+                  ? s.reportSubmittedListing
+                  : s.reportSubmittedUser,
             ),
           ),
         );
       case ReportSubmitResult.alreadyReported:
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Already reported')),
+          SnackBar(content: Text(s.alreadyReported)),
         );
       case ReportSubmitResult.notSignedIn:
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please sign in to report.')),
+          SnackBar(content: Text(s.signInToReport)),
         );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
+    final title = widget.target == ReportTarget.listing
+        ? s.reportThisListing
+        : s.reportThisSeller;
+
     return Padding(
       padding: EdgeInsets.only(
         left: 24,
@@ -107,7 +109,7 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            _title,
+            title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -116,7 +118,7 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
             runSpacing: 8,
             children: ReportReason.values.map((reason) {
               return ChoiceChip(
-                label: Text(reason.label),
+                label: Text(reason.localizedLabel(s)),
                 selected: _selectedReason == reason,
                 onSelected: _isSubmitting
                     ? null
@@ -133,21 +135,23 @@ class _ReportBottomSheetState extends ConsumerState<ReportBottomSheet> {
             controller: _detailsController,
             enabled: !_isSubmitting,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Add details (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: s.addDetailsOptional,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: _selectedReason == null || _isSubmitting ? null : _submit,
+            onPressed: _selectedReason == null || _isSubmitting
+                ? null
+                : () => _submit(s),
             child: _isSubmitting
                 ? const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Submit'),
+                : Text(s.submit),
           ),
         ],
       ),

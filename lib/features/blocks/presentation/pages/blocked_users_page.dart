@@ -1,4 +1,5 @@
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/blocks/presentation/providers/block_providers.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,11 @@ class BlockedUsersPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final blockedAsync = ref.watch(blockedUsersListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Blocked Users')),
+      appBar: AppBar(title: Text(s.blockedUsers)),
       body: blockedAsync.when(
         loading: () => ListView.separated(
           padding: const EdgeInsets.all(16),
@@ -27,10 +29,10 @@ class BlockedUsersPage extends ConsumerWidget {
         ),
         data: (blocks) {
           if (blocks.isEmpty) {
-            return const EmptyStateView(
+            return EmptyStateView(
               icon: Icons.block_outlined,
-              title: 'No blocked users',
-              message: 'Users you block will appear here.',
+              title: s.noBlockedUsers,
+              message: s.noBlockedUsersHint,
             );
           }
 
@@ -72,7 +74,8 @@ class _BlockedUserTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final name = block.blockedDisplayName ?? 'Unknown user';
+    final s = ref.str;
+    final name = block.blockedDisplayName ?? s.unknownUser;
 
     return ListTile(
       leading: CircleAvatar(
@@ -92,7 +95,7 @@ class _BlockedUserTile extends ConsumerWidget {
       ),
       trailing: TextButton(
         onPressed: () => _unblock(context, ref),
-        child: const Text('Unblock'),
+        child: Text(s.unblock),
       ),
     );
   }

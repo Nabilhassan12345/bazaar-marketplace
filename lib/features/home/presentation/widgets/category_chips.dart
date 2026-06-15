@@ -1,8 +1,10 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
-class CategoryChips extends StatelessWidget {
+class CategoryChips extends ConsumerWidget {
   const CategoryChips({
     required this.selectedCategory,
     required this.onCategorySelected,
@@ -12,15 +14,17 @@ class CategoryChips extends StatelessWidget {
   final ListingCategory? selectedCategory;
   final ValueChanged<ListingCategory?> onCategorySelected;
 
-  static const _tabs = <(String, ListingCategory?)>[
-    ('All', null),
-    ('Cars', ListingCategory.cars),
-    ('Houses', ListingCategory.houses),
-    ('Second-hand', ListingCategory.secondhand),
+  static const _tabs = <ListingCategory?>[
+    null,
+    ListingCategory.cars,
+    ListingCategory.houses,
+    ListingCategory.secondhand,
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -29,7 +33,10 @@ class CategoryChips extends StatelessWidget {
         itemCount: _tabs.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final (label, category) = _tabs[index];
+          final category = _tabs[index];
+          final label = category == null
+              ? s.all
+              : category.localizedLabel(s);
           final isSelected = selectedCategory == category;
 
           return ChoiceChip(

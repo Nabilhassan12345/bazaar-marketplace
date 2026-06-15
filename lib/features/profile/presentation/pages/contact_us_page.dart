@@ -1,4 +1,5 @@
 import 'package:bazaar/config/routes/route_names.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/features/profile/presentation/providers/package_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,21 +24,20 @@ class ContactUsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final versionAsync = ref.watch(packageInfoProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Contact Us')),
+      appBar: AppBar(title: Text(s.contactUs)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          const Text(
-            'We\'re here to help',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          Text(
+            s.contactUsHeading,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Have a question, issue, or feedback? Reach out to our support team.',
-          ),
+          Text(s.contactUsBody),
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () async {
@@ -46,15 +46,13 @@ class ContactUsPage extends ConsumerWidget {
               } catch (_) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Could not open email app.'),
-                    ),
+                    SnackBar(content: Text(s.couldNotOpenEmail)),
                   );
                 }
               }
             },
             icon: const Icon(Icons.email_outlined),
-            label: const Text('Email us'),
+            label: Text(s.emailUs),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
             ),
@@ -68,32 +66,32 @@ class ContactUsPage extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           versionAsync.when(
-            loading: () => const ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('App version'),
-              subtitle: Text('Loading...'),
+            loading: () => ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(s.appVersion),
+              subtitle: Text(s.loading),
             ),
-            error: (_, __) => const ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('App version'),
-              subtitle: Text('Unknown'),
+            error: (_, __) => ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(s.appVersion),
+              subtitle: Text(s.unknown),
             ),
             data: (info) => ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('App version'),
+              title: Text(s.appVersion),
               subtitle: Text('${info.version} (${info.buildNumber})'),
             ),
           ),
           const Divider(height: 32),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Privacy Policy'),
+            title: Text(s.privacyPolicy),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.pushNamed(RouteKeys.privacyPolicy),
           ),
           ListTile(
             leading: const Icon(Icons.description_outlined),
-            title: const Text('Terms of Service'),
+            title: Text(s.termsOfService),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.pushNamed(RouteKeys.termsOfService),
           ),

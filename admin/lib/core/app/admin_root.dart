@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/core/shell/admin_shell.dart';
 import 'package:admin/features/auth/domain/admin_session.dart';
 import 'package:admin/features/auth/presentation/pages/access_denied_screen.dart';
@@ -11,6 +12,7 @@ class AdminRoot extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final sessionAsync = ref.watch(adminSessionProvider);
 
     return sessionAsync.when(
@@ -18,7 +20,7 @@ class AdminRoot extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (error, _) => Scaffold(
-        body: Center(child: Text('Error: $error')),
+        body: Center(child: Text(s.errorWithDetails('$error'))),
       ),
       data: (session) {
         return switch (session.status) {

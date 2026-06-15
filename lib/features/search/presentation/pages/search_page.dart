@@ -1,3 +1,4 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
@@ -12,6 +13,7 @@ import 'package:bazaar/features/search/presentation/widgets/search_filter_sheet.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -71,17 +73,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   Widget build(BuildContext context) {
     final searchState = ref.watch(searchProvider);
     final notifier = ref.read(searchProvider.notifier);
+    final s = ref.str;
+    final languageCode = ref.watch(localeProvider).code;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: Text(s.navSearch),
         actions: [
           Badge(
             isLabelVisible: searchState.activeFilterCount > 0,
             label: Text('${searchState.activeFilterCount}'),
             child: IconButton(
               icon: const Icon(Icons.tune),
-              tooltip: 'Filters',
+              tooltip: s.filters,
               onPressed: _openFilters,
             ),
           ),
@@ -108,17 +112,22 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: ActiveFilterChips(
-                filters: searchState.filters.activeFilters,
+                filters: searchState.filters.localizedActiveFilters(s, languageCode),
                 onRemove: notifier.removeFilter,
               ),
             ),
-          Expanded(child: _buildContent(searchState, notifier)),
+          Expanded(child: _buildContent(searchState, notifier, s, languageCode)),
         ],
       ),
     );
   }
 
-  Widget _buildContent(SearchState state, SearchNotifier notifier) {
+  Widget _buildContent(
+    SearchState state,
+    SearchNotifier notifier,
+    BazaarStrings s,
+    String languageCode,
+  ) {
     if (state.showRecentSearches) {
       return ListView(
         children: [
@@ -131,16 +140,16 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             onRemove: notifier.removeRecentSearch,
           ),
           if (state.recentSearches.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(32),
+            Padding(
+              padding: const EdgeInsets.all(32),
               child: Column(
                 children: [
-                  Icon(Icons.search, size: 64, color: AppColors.textSecondary),
-                  SizedBox(height: 16),
+                  const Icon(Icons.search, size: 64, color: AppColors.textSecondary),
+                  const SizedBox(height: 16),
                   Text(
-                    'Search for cars, houses, and more',
+                    s.searchEmptyHint,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.textSecondary),
+                    style: const TextStyle(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -167,22 +176,27 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     if (state.status == SearchStatus.empty) {
       return EmptyStateView(
         icon: Icons.search_off,
-        title: "No listings found for '${state.activeQuery}'",
+        title: s.noListingsFoundFor(state.activeQuery),
       );
     }
+
+    final resultLabel = s.resultCountLabel(
+      state.listings.length,
+      hasMore: state.hasMore,
+    );
 
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
       itemCount: state.listings.length +
-          (state.resultCountLabel.isNotEmpty ? 1 : 0) +
+          (resultLabel.isNotEmpty ? 1 : 0) +
           (state.isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              state.resultCountLabel,
+              resultLabel,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,

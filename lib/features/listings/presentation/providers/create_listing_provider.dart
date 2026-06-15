@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_providers.dart';
 import 'package:bazaar/features/listings/domain/entities/listing_entity.dart';
 import 'package:bazaar/features/listings/domain/repositories/listing_repository.dart';
@@ -20,6 +21,8 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
   CreateListingState build() => const CreateListingState();
 
   ListingRepository get _repository => ref.read(listingRepositoryProvider);
+
+  BazaarStrings get _s => ref.read(bazaarStringsProvider);
 
   void setTitle(String value) => state = state.copyWith(title: value, clearError: true);
   void setDescription(String value) =>
@@ -44,14 +47,14 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
 
   bool nextStep() {
     if (state.currentStep == 0 && !state.canProceedFromDetails) {
-      state = state.copyWith(errorMessage: 'Please complete all required fields.');
+      state = state.copyWith(errorMessage: _s.errCompleteRequiredFields);
       return false;
     }
     if (state.currentStep == 1 && !state.canProceedFromImages) {
       state = state.copyWith(
         errorMessage: state.isUploadingImages
-            ? 'Please wait for images to finish uploading.'
-            : 'Add at least one image.',
+            ? _s.errWaitForUpload
+            : _s.errAddOneImage,
       );
       return false;
     }
@@ -74,7 +77,7 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
   Future<void> _pickImages(ImageSource source) async {
     final remaining = CreateListingState.maxImages - state.images.length;
     if (remaining <= 0) {
-      state = state.copyWith(errorMessage: 'Maximum ${CreateListingState.maxImages} images.');
+      state = state.copyWith(errorMessage: _s.maxImagesError(CreateListingState.maxImages));
       return;
     }
 
@@ -144,7 +147,7 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
           error: error.toString(),
         ),
       );
-      state = state.copyWith(errorMessage: 'Image upload failed.');
+      state = state.copyWith(errorMessage: _s.errImageUploadFailed);
     }
   }
 
@@ -224,7 +227,7 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
     final listing = buildPreviewModel();
 
     if (user == null || listing == null || !state.canProceedFromImages) {
-      state = state.copyWith(errorMessage: 'Complete all steps before submitting.');
+      state = state.copyWith(errorMessage: _s.errCompleteStepsBeforeSubmit);
       return false;
     }
 
@@ -249,7 +252,7 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
     } catch (error) {
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: 'Failed to submit listing. Please try again.',
+        errorMessage: _s.errSubmitFailed,
       );
       return false;
     }

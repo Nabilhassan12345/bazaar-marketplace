@@ -1,7 +1,6 @@
 import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
 import 'package:bazaar/core/utils/formatters.dart';
-import 'package:bazaar/core/utils/time_ago.dart';
 import 'package:bazaar/core/widgets/cached_network_image.dart';
 import 'package:bazaar/features/listings/domain/entities/listing_entity.dart';
 import 'package:flutter/material.dart';
@@ -129,7 +128,7 @@ class ListingCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        formatTimeAgo(item.createdAt),
+                        s.formatTimeAgo(item.createdAt),
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,

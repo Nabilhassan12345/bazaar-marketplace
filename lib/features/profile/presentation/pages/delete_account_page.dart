@@ -1,4 +1,5 @@
 import 'package:bazaar/config/routes/route_names.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_providers.dart';
 import 'package:bazaar/features/profile/data/datasources/account_deletion_datasource.dart';
 import 'package:bazaar/features/profile/presentation/providers/account_deletion_provider.dart';
@@ -26,6 +27,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
   }
 
   Future<void> _delete({required bool useGoogle}) async {
+    final s = ref.str;
     final user = ref.read(authStateChangesProvider).valueOrNull;
     if (user == null) return;
 
@@ -45,7 +47,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
 
       context.go(RouteNames.login);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account deleted')),
+        SnackBar(content: Text(s.accountDeleted)),
       );
     } on AccountDeletionException catch (error) {
       if (mounted) {
@@ -53,9 +55,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _errorMessage = 'Failed to delete account. Please try again.',
-        );
+        setState(() => _errorMessage = s.deleteAccountFailed);
       }
     } finally {
       if (mounted) {
@@ -66,11 +66,12 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
     final isGoogleAsync = ref.watch(isGoogleAccountProvider);
     final isGoogle = isGoogleAsync.valueOrNull ?? false;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Delete My Account')),
+      appBar: AppBar(title: Text(s.deleteAccount)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -80,23 +81,23 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
             color: Colors.red.shade700,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'This action is permanent',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          Text(
+            s.deleteAccountPermanent,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Deleting your account will:',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          const _Bullet('Remove all your listings from Bazaar'),
-          const _Bullet('Delete your saved favorites'),
-          const _Bullet('Erase your profile and account data'),
-          const _Bullet('Sign you out and delete your login credentials'),
           const SizedBox(height: 16),
           Text(
-            'This cannot be undone. You will need to create a new account to use Bazaar again.',
+            s.deleteAccountWill,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          _Bullet(text: s.deleteBulletListings),
+          _Bullet(text: s.deleteBulletFavorites),
+          _Bullet(text: s.deleteBulletProfile),
+          _Bullet(text: s.deleteBulletCredentials),
+          const SizedBox(height: 16),
+          Text(
+            s.deleteAccountFinalWarning,
             style: TextStyle(color: Colors.grey.shade700),
           ),
           if (_errorMessage != null) ...[
@@ -116,18 +117,16 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                 backgroundColor: Colors.red.shade700,
                 minimumSize: const Size.fromHeight(48),
               ),
-              child: const Text('Continue'),
+              child: Text(s.continueAction),
             )
           else ...[
-            const Text(
-              'Confirm your identity',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              s.confirmIdentity,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
-              isGoogle
-                  ? 'Re-authenticate with Google to confirm account deletion.'
-                  : 'Enter your password to confirm account deletion.',
+              isGoogle ? s.reauthGoogleDelete : s.reauthPasswordDelete,
             ),
             const SizedBox(height: 16),
             if (isGoogle)
@@ -144,16 +143,16 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Re-authenticate & delete account'),
+                    : Text(s.reauthAndDelete),
               )
             else ...[
               TextField(
                 controller: _passwordController,
                 obscureText: true,
                 enabled: !_isDeleting,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: s.password,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -169,7 +168,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Delete my account'),
+                    : Text(s.deleteMyAccountAction),
               ),
             ],
           ],
@@ -180,7 +179,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
 }
 
 class _Bullet extends StatelessWidget {
-  const _Bullet(this.text);
+  const _Bullet({required this.text});
 
   final String text;
 

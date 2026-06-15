@@ -1,7 +1,9 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
-class ListingDetailPanel extends StatelessWidget {
+class ListingDetailPanel extends ConsumerWidget {
   const ListingDetailPanel({
     required this.listing,
     required this.onClose,
@@ -12,7 +14,10 @@ class ListingDetailPanel extends StatelessWidget {
   final VoidCallback onClose;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+    final localeCode = ref.watch(adminLocaleProvider).code;
+
     return Material(
       elevation: 8,
       child: Container(
@@ -71,16 +76,34 @@ class ListingDetailPanel extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(height: 16),
-                  _InfoRow(label: 'Price', value: '\$${listing.price.toStringAsFixed(0)}'),
-                  _InfoRow(label: 'Category', value: listing.category.label),
-                  _InfoRow(label: 'City', value: listing.city),
-                  _InfoRow(label: 'Owner', value: listing.ownerName),
-                  _InfoRow(label: 'Status', value: listing.status.value),
-                  _InfoRow(label: 'Views', value: '${listing.viewCount}'),
+                  _InfoRow(
+                    label: s.price,
+                    value: '\$${listing.price.toStringAsFixed(0)}',
+                  ),
+                  _InfoRow(
+                    label: s.category,
+                    value: listing.category.localizedLabel(s),
+                  ),
+                  _InfoRow(
+                    label: s.city,
+                    value: MarketGeography.localityLabel(
+                      listing.city,
+                      localeCode,
+                    ),
+                  ),
+                  _InfoRow(label: s.owner, value: listing.ownerName),
+                  _InfoRow(
+                    label: s.status,
+                    value: s.listingStatus(listing.status.value),
+                  ),
+                  _InfoRow(
+                    label: s.viewsLabel,
+                    value: '${listing.viewCount}',
+                  ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Description',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    s.description,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(listing.description),

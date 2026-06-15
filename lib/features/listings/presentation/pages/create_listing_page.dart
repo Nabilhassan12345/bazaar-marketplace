@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
 class CreateListingPage extends ConsumerStatefulWidget {
@@ -70,10 +71,11 @@ class _CreateListingPageState extends ConsumerState<CreateListingPage> {
     final state = ref.watch(createListingProvider);
     final notifier = ref.read(createListingProvider.notifier);
     final isEdit = widget.listingId != null;
+    final s = ref.str;
 
     if (isEdit && !_editLoaded) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Listing')),
+        appBar: AppBar(title: Text(s.editListing)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -82,14 +84,14 @@ class _CreateListingPageState extends ConsumerState<CreateListingPage> {
         _editLoaded &&
         ref.read(listingDetailProvider(widget.listingId!)).valueOrNull == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Listing')),
-        body: const Center(child: Text('Listing not found.')),
+        appBar: AppBar(title: Text(s.editListing)),
+        body: Center(child: Text(s.listingNotFound)),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? 'Edit Listing' : 'Create Listing'),
+        title: Text(isEdit ? s.editListing : s.createListing),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -97,7 +99,7 @@ class _CreateListingPageState extends ConsumerState<CreateListingPage> {
       ),
       body: Column(
         children: [
-          _StepIndicator(currentStep: state.currentStep),
+          _StepIndicator(currentStep: state.currentStep, strings: s),
           if (state.errorMessage != null)
             Container(
               width: double.infinity,
@@ -112,14 +114,18 @@ class _CreateListingPageState extends ConsumerState<CreateListingPage> {
                 style: TextStyle(color: Colors.red.shade800),
               ),
             ),
-          Expanded(child: _buildStepContent(state, notifier)),
+          Expanded(child: _buildStepContent(state, notifier, s)),
           _BottomActions(state: state, notifier: notifier),
         ],
       ),
     );
   }
 
-  Widget _buildStepContent(CreateListingState state, CreateListingNotifier notifier) {
+  Widget _buildStepContent(
+    CreateListingState state,
+    CreateListingNotifier notifier,
+    BazaarStrings s,
+  ) {
     return switch (state.currentStep) {
       0 => _DetailsStep(
           titleController: _titleController,
@@ -141,22 +147,29 @@ class _CreateListingPageState extends ConsumerState<CreateListingPage> {
         ),
       1 => _ImagesStep(
           images: state.images,
+          strings: s,
           onAddGallery: notifier.pickFromGallery,
           onAddCamera: notifier.pickFromCamera,
           onRemove: notifier.removeImage,
         ),
-      2 => _PreviewStep(notifier: notifier),
-      _ => _SubmitStep(state: state),
+      2 => _PreviewStep(notifier: notifier, strings: s),
+      _ => _SubmitStep(state: state, strings: s),
     };
   }
 }
 
 class _StepIndicator extends StatelessWidget {
-  const _StepIndicator({required this.currentStep});
+  const _StepIndicator({required this.currentStep, required this.strings});
 
   final int currentStep;
+  final BazaarStrings strings;
 
-  static const _labels = ['Details', 'Images', 'Preview', 'Submit'];
+  List<String> get _labels => [
+        strings.stepDetails,
+        strings.stepImages,
+        strings.stepPreview,
+        strings.stepSubmit,
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -336,12 +349,14 @@ class _DetailsStep extends ConsumerWidget {
 class _ImagesStep extends StatelessWidget {
   const _ImagesStep({
     required this.images,
+    required this.strings,
     required this.onAddGallery,
     required this.onAddCamera,
     required this.onRemove,
   });
 
   final List<SelectedListingImage> images;
+  final BazaarStrings strings;
   final VoidCallback onAddGallery;
   final VoidCallback onAddCamera;
   final void Function(String imageId) onRemove;
@@ -354,14 +369,17 @@ class _ImagesStep extends StatelessWidget {
         ListingImagePickerGrid(
           images: images,
           maxImages: CreateListingState.maxImages,
+          photosLabel: strings.photosCount(images.length, CreateListingState.maxImages),
+          galleryLabel: strings.gallery,
+          cameraLabel: strings.camera,
           onAddGallery: onAddGallery,
           onAddCamera: onAddCamera,
           onRemove: onRemove,
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Images are compressed (max 800px, 70% quality) and uploaded to Firebase Storage.',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        Text(
+          strings.imagesCompressionNote,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
       ],
     );
@@ -369,29 +387,30 @@ class _ImagesStep extends StatelessWidget {
 }
 
 class _PreviewStep extends ConsumerWidget {
-  const _PreviewStep({required this.notifier});
+  const _PreviewStep({required this.notifier, required this.strings});
 
   final CreateListingNotifier notifier;
+  final BazaarStrings strings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = notifier.buildPreviewModel();
     if (model == null) {
-      return const Center(child: Text('Complete previous steps to preview.'));
+      return Center(child: Text(strings.completePreviousSteps));
     }
 
     final listing = ListingEntity.fromModel(model);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Preview',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          strings.preview,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'This is how your listing will appear once approved.',
-          style: TextStyle(color: AppColors.textSecondary),
+        Text(
+          strings.previewNote,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
         ListingCard(listing: listing),
@@ -401,9 +420,10 @@ class _PreviewStep extends ConsumerWidget {
 }
 
 class _SubmitStep extends StatelessWidget {
-  const _SubmitStep({required this.state});
+  const _SubmitStep({required this.state, required this.strings});
 
   final CreateListingState state;
+  final BazaarStrings strings;
 
   @override
   Widget build(BuildContext context) {
@@ -415,14 +435,14 @@ class _SubmitStep extends StatelessWidget {
             const Icon(Icons.check_circle, color: Colors.green, size: 72),
             const SizedBox(height: 16),
             Text(
-              state.isEditMode ? 'Listing updated!' : 'Listing submitted!',
+              state.isEditMode ? strings.listingUpdated : strings.listingSubmitted,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               state.isEditMode
-                  ? 'Your changes have been saved.'
-                  : 'Your listing is pending review.',
+                  ? strings.listingChangesSaved
+                  : strings.listingPendingReview,
             ),
           ],
         ),
@@ -431,15 +451,15 @@ class _SubmitStep extends StatelessWidget {
 
     return Center(
       child: state.isSubmitting
-          ? const Column(
+          ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Submitting your listing...'),
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(strings.submittingListing),
               ],
             )
-          : const Text('Ready to submit.'),
+          : Text(strings.readyToSubmit),
     );
   }
 }
@@ -452,6 +472,8 @@ class _BottomActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+
     if (state.submitSuccess) {
       return SafeArea(
         child: Padding(
@@ -465,7 +487,7 @@ class _BottomActions extends ConsumerWidget {
               minimumSize: const Size.fromHeight(48),
               backgroundColor: AppColors.primary,
             ),
-            child: const Text('Go to My Listings'),
+            child: Text(s.goToMyListings),
           ),
         ),
       );
@@ -479,7 +501,7 @@ class _BottomActions extends ConsumerWidget {
             if (state.currentStep > 0 && !state.isSubmitting)
               OutlinedButton(
                 onPressed: notifier.previousStep,
-                child: const Text('Back'),
+                child: Text(s.back),
               ),
             const SizedBox(width: 12),
             Expanded(
@@ -492,10 +514,7 @@ class _BottomActions extends ConsumerWidget {
                           return;
                         }
                         if (state.currentStep == 2) {
-                          final success = await notifier.submitListing();
-                          if (success && context.mounted) {
-                            // Step 3 shows success UI.
-                          }
+                          await notifier.submitListing();
                         }
                       },
                 style: FilledButton.styleFrom(
@@ -504,10 +523,10 @@ class _BottomActions extends ConsumerWidget {
                 ),
                 child: Text(
                   state.currentStep == 2
-                      ? (state.isEditMode ? 'Save Changes' : 'Submit for Review')
+                      ? (state.isEditMode ? s.saveChanges : s.submitForReview)
                       : state.currentStep == 3
-                          ? 'Submitting...'
-                          : 'Next',
+                          ? s.submittingListing
+                          : s.next,
                 ),
               ),
             ),

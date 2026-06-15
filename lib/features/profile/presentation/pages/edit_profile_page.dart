@@ -1,4 +1,5 @@
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_providers.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_state.dart';
@@ -29,12 +30,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   }
 
   Future<void> _save() async {
+    final s = ref.str;
     final user = ref.read(authStateChangesProvider).valueOrNull;
     if (user == null) return;
 
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _errorMessage = 'Name is required.');
+      setState(() => _errorMessage = s.nameRequired);
       return;
     }
 
@@ -64,17 +66,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     } catch (_) {
       setState(() {
         _isSaving = false;
-        _errorMessage = 'Failed to save profile.';
+        _errorMessage = s.failedToSaveProfile;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
     final profileAsync = ref.watch(currentUserProfileProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: Text(s.editProfile)),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorStateView(
@@ -82,7 +85,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ),
         data: (user) {
           if (user == null) {
-            return const Center(child: Text('Not signed in'));
+            return Center(child: Text(s.notSignedIn));
           }
 
           if (!_initialized) {
@@ -109,17 +112,17 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 ),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: s.nameLabel,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone number',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: s.phoneNumber,
+                  border: const OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
               ),
@@ -139,7 +142,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Save'),
+                    : Text(s.save),
               ),
             ],
           );

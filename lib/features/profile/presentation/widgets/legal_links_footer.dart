@@ -1,18 +1,22 @@
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 
-class LegalLinksFooter extends StatelessWidget {
+class LegalLinksFooter extends ConsumerWidget {
   const LegalLinksFooter({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
-          'By continuing, you agree to our ',
+          s.legalAgreePrefix,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.grey.shade600,
               ),
@@ -24,10 +28,10 @@ class LegalLinksFooter extends StatelessWidget {
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text('Terms of Service'),
+          child: Text(s.termsOfService),
         ),
         Text(
-          ' and ',
+          s.legalAnd,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.grey.shade600,
               ),
@@ -39,7 +43,7 @@ class LegalLinksFooter extends StatelessWidget {
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text('Privacy Policy'),
+          child: Text(s.privacyPolicy),
         ),
         Text(
           '.',

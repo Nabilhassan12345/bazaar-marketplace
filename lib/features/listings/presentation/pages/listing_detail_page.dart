@@ -1,7 +1,7 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
 import 'package:bazaar/core/utils/formatters.dart';
-import 'package:bazaar/core/utils/time_ago.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/listings/presentation/providers/listing_providers.dart';
 import 'package:bazaar/features/listings/presentation/widgets/listing_fullscreen_gallery.dart';
@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
 
 class ListingDetailPage extends ConsumerStatefulWidget {
   const ListingDetailPage({required this.listingId, super.key});
@@ -42,44 +43,46 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
     }
   }
 
-  Future<void> _launchUrl(Uri uri) async {
+  Future<void> _launchUrl(Uri uri, BazaarStrings s) async {
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open link.')),
+          SnackBar(content: Text(s.couldNotOpenLink)),
         );
       }
     }
   }
 
-  void _callSeller(String? phone) {
+  void _callSeller(String? phone, BazaarStrings s) {
     if (phone == null || phone.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seller phone number not available.')),
+        SnackBar(content: Text(s.sellerPhoneUnavailable)),
       );
       return;
     }
     final digits = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    _launchUrl(Uri.parse('tel:$digits'));
+    _launchUrl(Uri.parse('tel:$digits'), s);
   }
 
-  void _whatsappSeller(String? phone) {
+  void _whatsappSeller(String? phone, BazaarStrings s) {
     if (phone == null || phone.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seller phone number not available.')),
+        SnackBar(content: Text(s.sellerPhoneUnavailable)),
       );
       return;
     }
     final digits = phone.replaceAll(RegExp(r'\D'), '');
-    _launchUrl(Uri.parse('https://wa.me/$digits'));
+    _launchUrl(Uri.parse('https://wa.me/$digits'), s);
   }
 
   @override
   Widget build(BuildContext context) {
     final listingAsync = ref.watch(listingDetailProvider(widget.listingId));
+    final s = ref.str;
+    final language = ref.watch(localeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Listing')),
+      appBar: AppBar(title: Text(s.listing)),
       body: listingAsync.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(16),
@@ -90,14 +93,15 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
         ),
         data: (listing) {
           if (listing == null) {
-            return const EmptyStateView(
+            return EmptyStateView(
               icon: Icons.search_off,
-              title: 'Listing not found',
+              title: s.listingNotFound,
             );
           }
 
           final ownerAsync = ref.watch(userProfileProvider(listing.ownerId));
-          final price = Formatters.formatPrice(listing.price);
+          final price = Formatters.formatPrice(listing.price, language: language);
+          final cityLabel = Formatters.formatCityLabel(listing.city, language.code);
 
           return ListView(
             children: [
@@ -144,21 +148,21 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                       children: [
                         _MetaChip(
                           icon: Icons.location_on_outlined,
-                          label: listing.city,
+                          label: cityLabel,
                         ),
                         _MetaChip(
                           icon: Icons.category_outlined,
-                          label: listing.category.label,
+                          label: listing.category.localizedLabel(s),
                         ),
                         _MetaChip(
                           icon: Icons.schedule,
-                          label: formatTimeAgo(listing.createdAt),
+                          label: s.formatTimeAgo(listing.createdAt),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Description',
+                    Text(
+                      s.description,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -177,7 +181,7 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                     OwnerCard(
                       displayName: listing.ownerName,
                       photoUrl: listing.ownerPhoto,
-                      subtitle: 'View seller profile',
+                      subtitle: s.viewSellerProfile,
                       onTap: () => context.pushNamed(
                         RouteKeys.sellerProfile,
                         pathParameters: {'id': listing.ownerId},
@@ -190,10 +194,10 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                           child: FilledButton.icon(
                             onPressed: () {
                               final owner = ownerAsync.valueOrNull;
-                              _callSeller(owner?.phone);
+                              _callSeller(owner?.phone, s);
                             },
                             icon: const Icon(Icons.phone),
-                            label: const Text('Call Seller'),
+                            label: Text(s.callSeller),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               minimumSize: const Size.fromHeight(48),
@@ -205,10 +209,10 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                           child: OutlinedButton.icon(
                             onPressed: () {
                               final owner = ownerAsync.valueOrNull;
-                              _whatsappSeller(owner?.phone);
+                              _whatsappSeller(owner?.phone, s);
                             },
                             icon: const Icon(Icons.chat),
-                            label: const Text('WhatsApp'),
+                            label: Text(s.whatsApp),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size.fromHeight(48),
                             ),
@@ -223,9 +227,9 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                         listingId: listing.id,
                       ),
                       icon: const Icon(Icons.flag_outlined, color: Colors.red),
-                      label: const Text(
-                        'Report listing',
-                        style: TextStyle(color: Colors.red),
+                      label: Text(
+                        s.reportListingLower,
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ),
                   ],

@@ -1,8 +1,10 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
-class UserDetailPanel extends StatelessWidget {
+class UserDetailPanel extends ConsumerWidget {
   const UserDetailPanel({
     required this.user,
     required this.onClose,
@@ -13,7 +15,8 @@ class UserDetailPanel extends StatelessWidget {
   final VoidCallback onClose;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final joined = DateFormat.yMMMd().format(user.createdAt);
 
     return Material(
@@ -27,10 +30,10 @@ class UserDetailPanel extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'User Details',
-                      style: TextStyle(
+                      s.userDetails,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -64,18 +67,18 @@ class UserDetailPanel extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _InfoRow(label: 'Name', value: user.displayName),
-                  _InfoRow(label: 'Email', value: user.email),
-                  _InfoRow(label: 'Joined', value: joined),
-                  _InfoRow(label: 'Listings', value: '${user.listingCount}'),
-                  _InfoRow(label: 'Role', value: user.role.value),
+                  _InfoRow(label: s.nameLabel, value: user.displayName),
+                  _InfoRow(label: s.email, value: user.email),
+                  _InfoRow(label: s.joined, value: joined),
+                  _InfoRow(label: s.listingsCount, value: '${user.listingCount}'),
+                  _InfoRow(label: s.role, value: user.role.value),
                   _InfoRow(
-                    label: 'Status',
-                    value: user.isBlocked ? 'Banned' : 'Active',
+                    label: s.status,
+                    value: user.isBlocked ? s.banned : s.active,
                   ),
-                  if (user.phone != null) _InfoRow(label: 'Phone', value: user.phone!),
+                  if (user.phone != null) _InfoRow(label: s.phone, value: user.phone!),
                   if (user.bio != null && user.bio!.isNotEmpty)
-                    _InfoRow(label: 'Bio', value: user.bio!),
+                    _InfoRow(label: s.bio, value: user.bio!),
                 ],
               ),
             ),

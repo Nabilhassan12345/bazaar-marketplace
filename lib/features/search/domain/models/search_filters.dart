@@ -5,6 +5,13 @@ enum SearchSortOption {
   priceLowToHigh,
   priceHighToLow;
 
+  String localizedLabel(BazaarStrings strings) => switch (this) {
+        SearchSortOption.newest => strings.sortNewest,
+        SearchSortOption.priceLowToHigh => strings.sortPriceLowToHigh,
+        SearchSortOption.priceHighToLow => strings.sortPriceHighToLow,
+      };
+
+  @Deprecated('Use localizedLabel')
   String get label => switch (this) {
         SearchSortOption.newest => 'Newest first',
         SearchSortOption.priceLowToHigh => 'Price: low to high',
@@ -41,6 +48,55 @@ class SearchFilters {
     return count;
   }
 
+  List<ActiveSearchFilter> localizedActiveFilters(
+    BazaarStrings strings,
+    String languageCode,
+  ) {
+    final filters = <ActiveSearchFilter>[];
+    if (category != null) {
+      filters.add(
+        ActiveSearchFilter(
+          id: 'category',
+          label: category!.localizedLabel(strings),
+        ),
+      );
+    }
+    if (city != null) {
+      filters.add(
+        ActiveSearchFilter(
+          id: 'city',
+          label: MarketGeography.localityLabel(city, languageCode),
+        ),
+      );
+    }
+    if (minPrice != null) {
+      filters.add(
+        ActiveSearchFilter(
+          id: 'minPrice',
+          label: strings.minPriceChip(minPrice!),
+        ),
+      );
+    }
+    if (maxPrice != null) {
+      filters.add(
+        ActiveSearchFilter(
+          id: 'maxPrice',
+          label: strings.maxPriceChip(maxPrice!),
+        ),
+      );
+    }
+    if (sort != SearchSortOption.newest) {
+      filters.add(
+        ActiveSearchFilter(
+          id: 'sort',
+          label: sort.localizedLabel(strings),
+        ),
+      );
+    }
+    return filters;
+  }
+
+  @Deprecated('Use localizedActiveFilters')
   List<ActiveSearchFilter> get activeFilters {
     final filters = <ActiveSearchFilter>[];
     if (category != null) {

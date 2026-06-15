@@ -1,3 +1,5 @@
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
+
 enum ReportReason {
   spam,
   fraud,
@@ -13,6 +15,10 @@ enum ReportReason {
         ReportReason.other => 'other',
       };
 
+  String localizedLabel(BazaarStrings strings) =>
+      strings.reportReasonLabel(value);
+
+  @Deprecated('Use localizedLabel')
   String get label => switch (this) {
         ReportReason.spam => 'Spam',
         ReportReason.fraud => 'Fraud',

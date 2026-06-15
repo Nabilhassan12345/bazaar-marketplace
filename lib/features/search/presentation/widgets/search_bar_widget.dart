@@ -1,7 +1,9 @@
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchBarWidget extends StatelessWidget {
+class SearchBarWidget extends ConsumerWidget {
   const SearchBarWidget({
     required this.controller,
     required this.focusNode,
@@ -16,13 +18,15 @@ class SearchBarWidget extends StatelessWidget {
   final VoidCallback onClear;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+
     return TextField(
       controller: controller,
       focusNode: focusNode,
       autofocus: true,
       decoration: InputDecoration(
-        hintText: 'Search listings...',
+        hintText: s.searchHint,
         prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
         suffixIcon: controller.text.isNotEmpty
             ? IconButton(

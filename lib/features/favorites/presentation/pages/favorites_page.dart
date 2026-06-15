@@ -1,3 +1,4 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/favorites/presentation/providers/favorites_feed_provider.dart';
@@ -44,14 +45,17 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
   Widget build(BuildContext context) {
     final feed = ref.watch(favoritesFeedProvider);
     final notifier = ref.read(favoritesFeedProvider.notifier);
+    final s = ref.str;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Saved Items')),
+      appBar: AppBar(title: Text(s.savedItems)),
       body: _buildBody(feed, notifier),
     );
   }
 
   Widget _buildBody(FavoritesFeedState feed, FavoritesFeedNotifier notifier) {
+    final s = ref.str;
+
     if (feed.isInitialLoading) {
       return GridView.builder(
         padding: const EdgeInsets.all(16),
@@ -76,9 +80,9 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
     if (feed.listings.isEmpty) {
       return EmptyStateView(
         icon: Icons.favorite_border,
-        title: 'No saved listings yet',
-        message: 'Tap the heart on any listing to save it here.',
-        actionLabel: 'Browse',
+        title: s.noSavedListings,
+        message: s.noFavoritesHint,
+        actionLabel: s.browse,
         onAction: () => context.goNamed(RouteKeys.home),
       );
     }

@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/features/dashboard/presentation/providers/dashboard_stats_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,11 +9,12 @@ class DashboardPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     final statsAsync = ref.watch(dashboardStatsProvider);
 
     return statsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error: (error, _) => Center(child: Text(s.errorWithDetails('$error'))),
       data: (stats) {
         final numberFormat = NumberFormat.decimalPattern();
 
@@ -29,21 +31,24 @@ class DashboardPage extends ConsumerWidget {
                 runSpacing: 16,
                 children: [
                   _StatCard(
-                    title: 'Total Users',
+                    title: s.totalUsers,
                     value: numberFormat.format(stats.totalUsers),
                     icon: Icons.people_outline,
                     color: Colors.blue,
                   ),
                   _StatCard(
-                    title: 'Total Listings',
+                    title: s.totalListings,
                     value: numberFormat.format(stats.totalListings),
-                    subtitle:
-                        'Pending ${stats.pendingListings} · Approved ${stats.approvedListings} · Rejected ${stats.rejectedListings}',
+                    subtitle: s.dashboardListingsBreakdown(
+                      stats.pendingListings,
+                      stats.approvedListings,
+                      stats.rejectedListings,
+                    ),
                     icon: Icons.inventory_2_outlined,
                     color: Colors.indigo,
                   ),
                   _StatCard(
-                    title: 'Pending Review',
+                    title: s.pendingReview,
                     value: numberFormat.format(stats.pendingListings),
                     icon: Icons.hourglass_top,
                     color: Colors.amber.shade800,
@@ -55,7 +60,7 @@ class DashboardPage extends ConsumerWidget {
                         : null,
                   ),
                   _StatCard(
-                    title: 'Open Reports',
+                    title: s.openReports,
                     value: numberFormat.format(stats.openReports),
                     icon: Icons.flag_outlined,
                     color: Colors.red,

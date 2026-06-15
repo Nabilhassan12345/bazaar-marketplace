@@ -57,7 +57,7 @@ class ProfilePage extends ConsumerWidget {
         ),
         data: (user) {
           if (user == null) {
-            return const Center(child: Text('Not signed in'));
+            return Center(child: Text(s.notSignedIn));
           }
 
           final listingsCount = myListingsAsync.valueOrNull?.length ??
@@ -101,7 +101,7 @@ class ProfilePage extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Member since $memberSince',
+                s.memberSince(memberSince),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
@@ -113,14 +113,14 @@ class ProfilePage extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _StatCard(
-                      label: 'Listings',
+                      label: s.listingsCount,
                       value: '$listingsCount',
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _StatCard(
-                      label: 'Favorites',
+                      label: s.favorites,
                       value: '$favoritesCount',
                     ),
                   ),
@@ -129,28 +129,28 @@ class ProfilePage extends ConsumerWidget {
               const SizedBox(height: 24),
               _ProfileMenuItem(
                 icon: Icons.inventory_2_outlined,
-                title: 'My Listings',
+                title: s.myListings,
                 onTap: () => context.pushNamed(RouteKeys.myListings),
               ),
               _ProfileMenuItem(
                 icon: Icons.favorite_outline,
-                title: 'Saved Items',
+                title: s.savedItems,
                 onTap: () => context.goNamed(RouteKeys.favorites),
               ),
               _ProfileMenuItem(
                 icon: Icons.edit_outlined,
-                title: 'Edit Profile',
+                title: s.editProfile,
                 onTap: () => context.pushNamed(RouteKeys.editProfile),
               ),
               _ProfileMenuItem(
                 icon: Icons.settings_outlined,
-                title: 'Settings',
+                title: s.settings,
                 onTap: () => context.pushNamed(RouteKeys.settings),
               ),
               const Divider(height: 32),
               _ProfileMenuItem(
                 icon: Icons.logout,
-                title: 'Logout',
+                title: s.logout,
                 titleColor: Colors.red,
                 iconColor: Colors.red,
                 onTap: () => _confirmLogout(context, ref),

@@ -74,6 +74,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildBody(HomeFeedState feed, HomeFeedNotifier notifier) {
+    final s = ref.str;
+
     if (feed.isInitialLoading) {
       return ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -100,9 +102,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           children: [
             EmptyStateView(
               icon: Icons.inventory_2_outlined,
-              title: 'No listings yet',
-              message: 'Check back soon or post your own ad.',
-              actionLabel: 'Post an ad',
+              title: s.noListings,
+              message: s.homeEmptyHint,
+              actionLabel: s.postAnAd,
               onAction: () => context.goNamed(RouteKeys.post),
             ),
           ],

@@ -7,6 +7,9 @@ class ListingImagePickerGrid extends StatelessWidget {
   const ListingImagePickerGrid({
     required this.images,
     required this.maxImages,
+    required this.photosLabel,
+    required this.galleryLabel,
+    required this.cameraLabel,
     required this.onAddGallery,
     required this.onAddCamera,
     required this.onRemove,
@@ -15,6 +18,9 @@ class ListingImagePickerGrid extends StatelessWidget {
 
   final List<SelectedListingImage> images;
   final int maxImages;
+  final String photosLabel;
+  final String galleryLabel;
+  final String cameraLabel;
   final VoidCallback onAddGallery;
   final VoidCallback onAddCamera;
   final void Function(String imageId) onRemove;
@@ -27,7 +33,7 @@ class ListingImagePickerGrid extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Photos (${images.length}/$maxImages)',
+          photosLabel,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
@@ -43,6 +49,8 @@ class ListingImagePickerGrid extends StatelessWidget {
           itemBuilder: (context, index) {
             if (index == images.length) {
               return _AddImageTile(
+                galleryLabel: galleryLabel,
+                cameraLabel: cameraLabel,
                 onGallery: onAddGallery,
                 onCamera: onAddCamera,
               );
@@ -128,8 +136,15 @@ class _ImageTile extends StatelessWidget {
 }
 
 class _AddImageTile extends StatelessWidget {
-  const _AddImageTile({required this.onGallery, required this.onCamera});
+  const _AddImageTile({
+    required this.galleryLabel,
+    required this.cameraLabel,
+    required this.onGallery,
+    required this.onCamera,
+  });
 
+  final String galleryLabel;
+  final String cameraLabel;
   final VoidCallback onGallery;
   final VoidCallback onCamera;
 
@@ -149,7 +164,7 @@ class _AddImageTile extends StatelessWidget {
           children: [
             const Icon(Icons.add_photo_alternate_outlined, color: AppColors.primary),
             const SizedBox(height: 4),
-            const Text('Gallery', style: TextStyle(fontSize: 11)),
+            Text(galleryLabel, style: const TextStyle(fontSize: 11)),
             TextButton(
               onPressed: onCamera,
               style: TextButton.styleFrom(
@@ -157,7 +172,7 @@ class _AddImageTile extends StatelessWidget {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text('Camera', style: TextStyle(fontSize: 11)),
+              child: Text(cameraLabel, style: const TextStyle(fontSize: 11)),
             ),
           ],
         ),

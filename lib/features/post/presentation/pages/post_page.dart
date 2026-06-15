@@ -1,15 +1,19 @@
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PostPage extends StatelessWidget {
+class PostPage extends ConsumerWidget {
   const PostPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Post')),
+      appBar: AppBar(title: Text(s.navPost)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -30,17 +34,18 @@ class PostPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('Post an ad', style: TextStyle(fontSize: 18)),
+              Text(s.postAnAd, style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 8),
-              const Text(
-                'Sell cars, houses, or second-hand items',
-                style: TextStyle(color: AppColors.textSecondary),
+              Text(
+                s.postSubtitle,
+                style: const TextStyle(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: () => context.pushNamed(RouteKeys.createListing),
                 icon: const Icon(Icons.edit_outlined),
-                label: const Text('Create Listing'),
+                label: Text(s.createListing),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(200, 48),

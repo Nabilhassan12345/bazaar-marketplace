@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/features/users/data/admin_users_datasource.dart';
 import 'package:admin/features/users/presentation/providers/admin_users_provider.dart';
 import 'package:admin/features/users/presentation/widgets/user_detail_panel.dart';
@@ -27,11 +28,12 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
     final usersAsync = ref.watch(adminUsersProvider);
 
     return usersAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error: (error, _) => Center(child: Text(s.errorWithDetails('$error'))),
       data: (users) {
         final filtered = filterUsersByQuery(users, _searchQuery);
 
@@ -45,7 +47,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search by name or email',
+                      hintText: s.searchByNameOrEmail,
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
@@ -72,17 +74,17 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       headingRowColor: WidgetStateProperty.all(
                         Colors.grey.shade100,
                       ),
-                      columns: const [
-                        DataColumn2(label: Text(''), fixedWidth: 56),
-                        DataColumn2(label: Text('Name'), size: ColumnSize.L),
-                        DataColumn2(label: Text('Email'), size: ColumnSize.L),
-                        DataColumn2(label: Text('Joined'), size: ColumnSize.S),
+                      columns: [
+                        const DataColumn2(label: Text(''), fixedWidth: 56),
+                        DataColumn2(label: Text(s.nameLabel), size: ColumnSize.L),
+                        DataColumn2(label: Text(s.email), size: ColumnSize.L),
+                        DataColumn2(label: Text(s.joined), size: ColumnSize.S),
                         DataColumn2(
-                          label: Text('Listings'),
+                          label: Text(s.listingsCount),
                           size: ColumnSize.S,
                         ),
-                        DataColumn2(label: Text('Status'), size: ColumnSize.S),
-                        DataColumn2(label: Text('Actions'), fixedWidth: 200),
+                        DataColumn2(label: Text(s.status), size: ColumnSize.S),
+                        DataColumn2(label: Text(s.actions), fixedWidth: 200),
                       ],
                       rows: filtered.map((user) {
                         final joined =
@@ -102,13 +104,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                             DataCell(
                               banned
                                   ? Text(
-                                      'Banned',
+                                      s.banned,
                                       style: TextStyle(
                                         color: Colors.red.shade700,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     )
-                                  : const Text('Active'),
+                                  : Text(s.active),
                             ),
                             DataCell(
                               Row(
@@ -117,18 +119,18 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                                   TextButton(
                                     onPressed: () =>
                                         setState(() => _detailUser = user),
-                                    child: const Text('View'),
+                                    child: Text(s.view),
                                   ),
                                   if (banned)
                                     TextButton(
                                       onPressed: () => _unban(user),
-                                      child: const Text('Unban'),
+                                      child: Text(s.unbanUser),
                                     )
                                   else
                                     TextButton(
                                       onPressed: () => _ban(user),
                                       child: Text(
-                                        'Ban',
+                                        s.banUser,
                                         style: TextStyle(
                                           color: Colors.red.shade700,
                                         ),
@@ -172,22 +174,21 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   }
 
   Future<void> _ban(UserModel user) async {
+    final s = ref.str;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ban user?'),
-        content: Text(
-          'Ban ${user.displayName} (${user.email})? They will not be able to use the app.',
-        ),
+        title: Text(s.banUserTitle),
+        content: Text(s.banUserAdminConfirm(user.displayName, user.email)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(s.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Ban'),
+            child: Text(s.banUser),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:bazaar/config/routes/route_names.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/listings/domain/entities/listing_entity.dart';
 import 'package:bazaar/features/listings/presentation/providers/listing_providers.dart';
@@ -7,28 +8,27 @@ import 'package:bazaar/features/listings/presentation/widgets/listing_card.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
 class MyListingsPage extends ConsumerWidget {
   const MyListingsPage({super.key});
 
-  Future<bool> _confirmDelete(BuildContext context) async {
+  Future<bool> _confirmDelete(BuildContext context, BazaarStrings s) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete listing?'),
-        content: const Text(
-          'This action cannot be undone. Your listing will be removed.',
-        ),
+        title: Text(s.deleteListingTitle),
+        content: Text(s.deleteListingMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(s.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(s.deleteAction),
           ),
         ],
       ),
@@ -40,8 +40,9 @@ class MyListingsPage extends ConsumerWidget {
     WidgetRef ref,
     BuildContext context,
     ListingEntity listing,
+    BazaarStrings s,
   ) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await _confirmDelete(context, s);
     if (!confirmed || !context.mounted) return;
 
     try {
@@ -52,13 +53,13 @@ class MyListingsPage extends ConsumerWidget {
       ref.invalidate(myListingsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Listing deleted.')),
+          SnackBar(content: Text(s.listingDeleted)),
         );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete listing.')),
+          SnackBar(content: Text(s.listingDeleteFailed)),
         );
       }
     }
@@ -67,9 +68,10 @@ class MyListingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final listingsAsync = ref.watch(myListingsProvider);
+    final s = ref.str;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Listings')),
+      appBar: AppBar(title: Text(s.myListings)),
       body: listingsAsync.when(
         loading: () => ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -86,9 +88,9 @@ class MyListingsPage extends ConsumerWidget {
           if (listings.isEmpty) {
             return EmptyStateView(
               icon: Icons.post_add_outlined,
-              title: 'No listings yet',
-              message: 'Post your first ad to start selling.',
-              actionLabel: 'Post an ad',
+              title: s.noListings,
+              message: s.myListingsEmptyHint,
+              actionLabel: s.postAnAd,
               onAction: () => context.goNamed(RouteKeys.post),
             );
           }
@@ -114,7 +116,7 @@ class MyListingsPage extends ConsumerWidget {
                       ),
                       child: const Icon(Icons.delete_outline, color: Colors.white),
                     ),
-                    confirmDismiss: (_) => _confirmDelete(context),
+                    confirmDismiss: (_) => _confirmDelete(context, s),
                     onDismissed: (_) async {
                       try {
                         await ref.read(listingRepositoryProvider).deleteListing(
@@ -125,9 +127,7 @@ class MyListingsPage extends ConsumerWidget {
                       } catch (_) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to delete listing.'),
-                            ),
+                            SnackBar(content: Text(s.listingDeleteFailed)),
                           );
                           ref.invalidate(myListingsProvider);
                         }
@@ -146,16 +146,17 @@ class MyListingsPage extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            _StatusChip(status: listing.status),
+                            _StatusChip(status: listing.status, strings: s),
                             const Spacer(),
                             TextButton.icon(
                               onPressed: () => _deleteListing(
                                 ref,
                                 context,
                                 listing,
+                                s,
                               ),
                               icon: const Icon(Icons.delete_outline, size: 18),
-                              label: const Text('Delete'),
+                              label: Text(s.deleteAction),
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.red,
                               ),
@@ -176,9 +177,10 @@ class MyListingsPage extends ConsumerWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.status, required this.strings});
 
   final ListingStatus status;
+  final BazaarStrings strings;
 
   @override
   Widget build(BuildContext context) {
@@ -189,13 +191,6 @@ class _StatusChip extends StatelessWidget {
       ListingStatus.draft => Colors.grey,
     };
 
-    final label = switch (status) {
-      ListingStatus.pendingReview => 'PENDING',
-      ListingStatus.approved => 'APPROVED',
-      ListingStatus.rejected => 'REJECTED',
-      ListingStatus.draft => 'DRAFT',
-    };
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -203,7 +198,7 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        label,
+        strings.listingStatus(status.value).toUpperCase(),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
