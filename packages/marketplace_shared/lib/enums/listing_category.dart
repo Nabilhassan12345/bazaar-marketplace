@@ -1,3 +1,5 @@
+import 'package:marketplace_shared/l10n/bazaar_strings.dart';
+
 enum ListingCategory {
   cars,
   houses,
@@ -9,6 +11,12 @@ enum ListingCategory {
         ListingCategory.cars => 'Cars',
         ListingCategory.houses => 'Houses',
         ListingCategory.secondhand => 'Second-hand',
+      };
+
+  String localizedLabel(BazaarStrings strings) => switch (this) {
+        ListingCategory.cars => strings.categoryCars,
+        ListingCategory.houses => strings.categoryHouses,
+        ListingCategory.secondhand => strings.categorySecondHand,
       };
 
   static ListingCategory fromValue(String value) => switch (value) {

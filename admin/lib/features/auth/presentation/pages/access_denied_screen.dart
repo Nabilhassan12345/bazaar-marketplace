@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/features/auth/presentation/providers/admin_auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ class AccessDeniedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
     return Scaffold(
       body: Center(
         child: Padding(
@@ -16,13 +18,13 @@ class AccessDeniedScreen extends ConsumerWidget {
             children: [
               Icon(Icons.lock_outline, size: 72, color: Colors.red.shade400),
               const SizedBox(height: 16),
-              const Text(
-                'Access Denied',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                s.accessDenied,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Your account does not have admin privileges.',
+              Text(
+                s.accessDeniedMessage,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -30,7 +32,7 @@ class AccessDeniedScreen extends ConsumerWidget {
                 onPressed: () =>
                     ref.read(adminAuthControllerProvider).signOut(),
                 icon: const Icon(Icons.logout),
-                label: const Text('Sign out'),
+                label: Text(s.signOut),
               ),
             ],
           ),

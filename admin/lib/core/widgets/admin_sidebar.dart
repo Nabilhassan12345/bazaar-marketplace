@@ -1,7 +1,9 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/config/theme/admin_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AdminSidebar extends StatelessWidget {
+class AdminSidebar extends ConsumerWidget {
   const AdminSidebar({
     required this.selectedIndex,
     required this.onDestinationSelected,
@@ -13,15 +15,16 @@ class AdminSidebar extends StatelessWidget {
   final ValueChanged<int> onDestinationSelected;
   final bool extended;
 
-  static const destinations = <(IconData, String)>[
-    (Icons.dashboard_outlined, 'Dashboard'),
-    (Icons.inventory_2_outlined, 'Listings'),
-    (Icons.people_outline, 'Users'),
-    (Icons.flag_outlined, 'Reports'),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+    final destinations = <(IconData, String)>[
+      (Icons.dashboard_outlined, s.navDashboard),
+      (Icons.inventory_2_outlined, s.navListings),
+      (Icons.people_outline, s.navUsers),
+      (Icons.flag_outlined, s.navReports),
+    ];
+
     return NavigationRail(
       extended: extended,
       selectedIndex: selectedIndex,
@@ -30,9 +33,9 @@ class AdminSidebar extends StatelessWidget {
       leading: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: extended
-            ? const Text(
-                'Bazaar Admin',
-                style: TextStyle(
+            ? Text(
+                s.adminTitle,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AdminTheme.primary,
                 ),
@@ -49,4 +52,9 @@ class AdminSidebar extends StatelessWidget {
       ],
     );
   }
+}
+
+List<String> adminDestinationLabels(WidgetRef ref) {
+  final s = ref.str;
+  return [s.navDashboard, s.navListings, s.navUsers, s.navReports];
 }

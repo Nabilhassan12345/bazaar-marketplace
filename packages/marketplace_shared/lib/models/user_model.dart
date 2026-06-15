@@ -97,7 +97,7 @@ class UserModel {
       approvedListingCount: 0,
       emailVerified: emailVerified,
       phoneVerified: false,
-      preferredLanguage: 'tr',
+      preferredLanguage: 'fr',
       notificationSettings: const {
         'listingApproved': true,
         'listingRejected': true,

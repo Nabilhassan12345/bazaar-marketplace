@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.8
   firebase_core: ^3.13.0
   firebase_auth: ^5.5.2
@@ -17,6 +19,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   intl: ^0.20.2
   data_table_2: ^2.5.15
+  shared_preferences: ^2.5.3
   marketplace_shared:
     path: ../packages/marketplace_shared
   bazaar:

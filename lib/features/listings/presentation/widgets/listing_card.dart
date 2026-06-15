@@ -1,12 +1,14 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
 import 'package:bazaar/core/utils/formatters.dart';
 import 'package:bazaar/core/utils/time_ago.dart';
 import 'package:bazaar/core/widgets/cached_network_image.dart';
 import 'package:bazaar/features/listings/domain/entities/listing_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
-class ListingCard extends StatelessWidget {
+class ListingCard extends ConsumerWidget {
   const ListingCard({
     required this.listing,
     this.isLoading = false,
@@ -23,13 +25,16 @@ class ListingCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (isLoading || listing == null) {
       return const _ListingCardShimmer();
     }
 
     final item = listing!;
-    final price = Formatters.formatPrice(item.price);
+    final language = ref.watch(localeProvider);
+    final s = ref.str;
+    final price = Formatters.formatPrice(item.price, language: language);
+    final cityLabel = Formatters.formatCityLabel(item.city, language.code);
     final thumbnail = item.images.isNotEmpty ? item.images.first : null;
 
     return Card(
@@ -62,7 +67,7 @@ class ListingCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   left: 8,
-                  child: _CategoryBadge(label: item.category.label),
+                  child: _CategoryBadge(label: item.category.localizedLabel(s)),
                 ),
                 Positioned(
                   top: 4,
@@ -115,7 +120,7 @@ class ListingCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          item.city,
+                          cityLabel,
                           style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,

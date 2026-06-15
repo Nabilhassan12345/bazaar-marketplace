@@ -1,11 +1,13 @@
 import 'package:bazaar/config/theme/app_colors.dart';
-import 'package:bazaar/core/constants/us_cities.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
+import 'package:bazaar/core/widgets/market_location_picker.dart';
 import 'package:bazaar/features/search/domain/models/search_filters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marketplace_shared/marketplace_shared.dart';
 
-class SearchFilterSheet extends StatefulWidget {
+class SearchFilterSheet extends ConsumerStatefulWidget {
   const SearchFilterSheet({
     required this.initialFilters,
     required this.onApply,
@@ -18,10 +20,10 @@ class SearchFilterSheet extends StatefulWidget {
   final VoidCallback onClearAll;
 
   @override
-  State<SearchFilterSheet> createState() => _SearchFilterSheetState();
+  ConsumerState<SearchFilterSheet> createState() => _SearchFilterSheetState();
 }
 
-class _SearchFilterSheetState extends State<SearchFilterSheet> {
+class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
   late ListingCategory? _category;
   late String? _city;
   late final TextEditingController _minPriceController;
@@ -75,6 +77,9 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
+    final languageCode = ref.watch(localeProvider).code;
+
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -98,30 +103,30 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Filters',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              s.filters,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Category',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            Text(
+              s.category,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             SegmentedButton<ListingCategory?>(
-              segments: const [
-                ButtonSegment(value: null, label: Text('All')),
+              segments: [
+                ButtonSegment(value: null, label: Text(s.all)),
                 ButtonSegment(
                   value: ListingCategory.cars,
-                  label: Text('Cars'),
+                  label: Text(s.categoryCars),
                 ),
                 ButtonSegment(
                   value: ListingCategory.houses,
-                  label: Text('Houses'),
+                  label: Text(s.categoryHouses),
                 ),
                 ButtonSegment(
                   value: ListingCategory.secondhand,
-                  label: Text('2nd-hand'),
+                  label: Text(s.categorySecondHand),
                 ),
               ],
               selected: {_category},
@@ -130,25 +135,12 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
               },
             ),
             const SizedBox(height: 20),
-            DropdownButtonFormField<String?>(
-              key: ValueKey(_city),
-              initialValue: _city,
-              decoration: const InputDecoration(
-                labelText: 'City',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem<String?>(
-                  value: null,
-                  child: Text('All cities'),
-                ),
-                ...UsCities.all.map(
-                  (city) => DropdownMenuItem<String?>(
-                    value: city,
-                    child: Text(city),
-                  ),
-                ),
-              ],
+            MarketLocalityFilterDropdown(
+              value: _city,
+              languageCode: languageCode,
+              label: s.city,
+              allowNull: true,
+              nullLabel: s.allCities,
               onChanged: (value) => setState(() => _city = value),
             ),
             const SizedBox(height: 16),
@@ -157,10 +149,10 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 Expanded(
                   child: TextField(
                     controller: _minPriceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Min price',
-                      prefixText: '\$ ',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: s.minPrice,
+                      prefixText: 'FCFA ',
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [
@@ -172,10 +164,10 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 Expanded(
                   child: TextField(
                     controller: _maxPriceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Max price',
-                      prefixText: '\$ ',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: s.maxPrice,
+                      prefixText: 'FCFA ',
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [
@@ -186,9 +178,9 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Sort by',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            Text(
+              s.sortBy,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             RadioGroup<SearchSortOption>(
@@ -214,7 +206,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size.fromHeight(48),
               ),
-              child: const Text('Apply Filters'),
+              child: Text(s.applyFilters),
             ),
             const SizedBox(height: 8),
             OutlinedButton(
@@ -222,7 +214,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
               ),
-              child: const Text('Clear All'),
+              child: Text(s.clearFilters),
             ),
           ],
         ),

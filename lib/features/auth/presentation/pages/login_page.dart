@@ -1,5 +1,6 @@
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_providers.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_state.dart';
 import 'package:bazaar/features/auth/presentation/widgets/auth_text_field.dart';
@@ -49,6 +50,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     final authStatus = ref.watch(authControllerProvider);
     final isLoading = authStatus is AuthLoading;
+    final s = ref.str;
 
     return Scaffold(
       body: SafeArea(
@@ -61,25 +63,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               children: [
                 const SizedBox(height: 48),
                 Text(
-                  'Welcome to Bazaar',
+                  s.welcomeTitle,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Sign in to buy and sell locally',
-                  style: TextStyle(color: AppColors.textSecondary),
+                Text(
+                  s.signInSubtitle,
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 32),
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
+                  label: s.email,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Email is required';
+                      return s.emailRequired;
                     }
                     return null;
                   },
@@ -87,11 +89,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Password',
+                  label: s.password,
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return s.passwordMinLength;
                     }
                     return null;
                   },
@@ -109,7 +111,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Sign In'),
+                      : Text(s.signIn),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
@@ -119,12 +121,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           .read(authControllerProvider.notifier)
                           .signInWithGoogle(),
                   icon: const Icon(Icons.g_mobiledata, size: 28),
-                  label: const Text('Continue with Google'),
+                  label: Text(s.continueWithGoogle),
                 ),
                 const SizedBox(height: 24),
                 TextButton(
                   onPressed: () => context.go(RouteNames.register),
-                  child: const Text("Don't have an account? Sign up"),
+                  child: Text(s.noAccountSignUp),
                 ),
               ],
             ),

@@ -126,6 +126,9 @@ class ListingRemoteDataSource {
       'price': listing.price,
       'category': listing.category.value,
       'city': listing.city,
+      if (listing.countryCode != null) 'countryCode': listing.countryCode,
+      if (listing.regionId != null) 'regionId': listing.regionId,
+      if (listing.districtId != null) 'districtId': listing.districtId,
       'images': listing.images,
       'searchTokens': generateSearchTokens(
         title: listing.title,

@@ -8,6 +8,8 @@ A full-stack classifieds marketplace (OLX / Sahibinden style) built with **Flutt
 | **Firebase project** | `bazaar-dev-e4d92` |
 | **Admin dashboard** | https://bazaar-dev-e4d92.web.app |
 | **Platforms** | iOS · Android · Web (admin) |
+| **Languages** | French (default) · English · Arabic (RTL) |
+| **Markets** | Burkina Faso · Côte d'Ivoire · Sudan |
 
 ---
 
@@ -93,6 +95,14 @@ Admins approve or reject via the web dashboard. Firestore security rules enforce
 - **Riverpod** — `StreamProvider` for auth, `AsyncNotifier` for feeds and forms
 - **go_router** — auth-aware redirects; splash resolves before routing
 - **Firebase** — initialized in `lib/core/firebase/firebase_initializer.dart`
+
+### Localization
+
+- **Languages:** French (default), English, Arabic with RTL layout
+- **Shared strings:** `packages/marketplace_shared/lib/l10n/`
+- **Switch language:** Mobile → Profile → Settings → Language; Admin → globe icon in app bar
+- **Cities:** Full geography for BF, CI, and Sudan — 64 regions, 190 districts, 639 localities (`MarketGeography`)
+- **Currency display:** FCFA (West Africa) / ج.س (Arabic Sudan)
 
 > For the full schema, Firestore collections, security rules, and folder tree, see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 

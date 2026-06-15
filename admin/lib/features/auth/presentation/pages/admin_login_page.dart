@@ -1,3 +1,4 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
 import 'package:admin/config/theme/admin_theme.dart';
 import 'package:admin/features/auth/presentation/providers/admin_auth_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -46,6 +47,7 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.str;
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
@@ -59,7 +61,7 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Bazaar Admin',
+                    s.adminTitle,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -67,8 +69,8 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
                         ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Sign in with your admin account',
+                  Text(
+                    s.adminLogin,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
@@ -82,9 +84,9 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
                     ),
                   TextField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: s.email,
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     autofillHints: const [AutofillHints.email],
@@ -92,9 +94,9 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: s.password,
+                      border: const OutlineInputBorder(),
                     ),
                     obscureText: true,
                     autofillHints: const [AutofillHints.password],
@@ -116,7 +118,7 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('Sign In'),
+                        : Text(s.signIn),
                   ),
                 ],
               ),

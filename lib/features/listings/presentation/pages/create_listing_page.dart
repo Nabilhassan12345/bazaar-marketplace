@@ -1,6 +1,7 @@
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
-import 'package:bazaar/core/constants/us_cities.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
+import 'package:bazaar/core/widgets/market_location_picker.dart';
 import 'package:bazaar/features/listings/domain/entities/listing_entity.dart';
 import 'package:bazaar/features/listings/presentation/providers/create_listing_provider.dart';
 import 'package:bazaar/features/listings/presentation/providers/create_listing_state.dart';
@@ -125,8 +126,14 @@ class _CreateListingPageState extends ConsumerState<CreateListingPage> {
           descriptionController: _descriptionController,
           priceController: _priceController,
           category: state.category,
+          countryCode: state.countryCode,
+          regionId: state.regionId,
+          districtId: state.districtId,
           city: state.city,
           onCategoryChanged: notifier.setCategory,
+          onCountryChanged: notifier.setCountryCode,
+          onRegionChanged: notifier.setRegionId,
+          onDistrictChanged: notifier.setDistrictId,
           onCityChanged: notifier.setCity,
           onTitleChanged: notifier.setTitle,
           onDescriptionChanged: notifier.setDescription,
@@ -208,14 +215,20 @@ class _StepIndicator extends StatelessWidget {
   }
 }
 
-class _DetailsStep extends StatelessWidget {
+class _DetailsStep extends ConsumerWidget {
   const _DetailsStep({
     required this.titleController,
     required this.descriptionController,
     required this.priceController,
     required this.category,
+    required this.countryCode,
+    required this.regionId,
+    required this.districtId,
     required this.city,
     required this.onCategoryChanged,
+    required this.onCountryChanged,
+    required this.onRegionChanged,
+    required this.onDistrictChanged,
     required this.onCityChanged,
     required this.onTitleChanged,
     required this.onDescriptionChanged,
@@ -226,32 +239,41 @@ class _DetailsStep extends StatelessWidget {
   final TextEditingController descriptionController;
   final TextEditingController priceController;
   final ListingCategory? category;
+  final String? countryCode;
+  final String? regionId;
+  final String? districtId;
   final String? city;
   final ValueChanged<ListingCategory?> onCategoryChanged;
+  final ValueChanged<String?> onCountryChanged;
+  final ValueChanged<String?> onRegionChanged;
+  final ValueChanged<String?> onDistrictChanged;
   final ValueChanged<String?> onCityChanged;
   final ValueChanged<String> onTitleChanged;
   final ValueChanged<String> onDescriptionChanged;
   final ValueChanged<String> onPriceChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.str;
+    final languageCode = ref.watch(localeProvider).code;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         TextField(
           controller: titleController,
-          decoration: const InputDecoration(
-            labelText: 'Title',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: s.title,
+            border: const OutlineInputBorder(),
           ),
           onChanged: onTitleChanged,
         ),
         const SizedBox(height: 16),
         TextField(
           controller: descriptionController,
-          decoration: const InputDecoration(
-            labelText: 'Description',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: s.description,
+            border: const OutlineInputBorder(),
             alignLabelWithHint: true,
           ),
           minLines: 4,
@@ -261,10 +283,10 @@ class _DetailsStep extends StatelessWidget {
         const SizedBox(height: 16),
         TextField(
           controller: priceController,
-          decoration: const InputDecoration(
-            labelText: 'Price',
-            prefixText: '\$ ',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: s.price,
+            prefixText: 'FCFA ',
+            border: const OutlineInputBorder(),
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
@@ -276,32 +298,35 @@ class _DetailsStep extends StatelessWidget {
         DropdownButtonFormField<ListingCategory>(
           key: ValueKey(category),
           initialValue: category,
-          decoration: const InputDecoration(
-            labelText: 'Category',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: s.category,
+            border: const OutlineInputBorder(),
           ),
           items: ListingCategory.values
               .map(
                 (value) => DropdownMenuItem(
                   value: value,
-                  child: Text(value.label),
+                  child: Text(value.localizedLabel(s)),
                 ),
               )
               .toList(),
           onChanged: onCategoryChanged,
         ),
         const SizedBox(height: 16),
-        DropdownButtonFormField<String>(
-          key: ValueKey(city),
-          initialValue: city,
-          decoration: const InputDecoration(
-            labelText: 'City',
-            border: OutlineInputBorder(),
-          ),
-          items: UsCities.all
-              .map((value) => DropdownMenuItem(value: value, child: Text(value)))
-              .toList(),
-          onChanged: onCityChanged,
+        MarketLocationPicker(
+          languageCode: languageCode,
+          countryCode: countryCode,
+          regionId: regionId,
+          districtId: districtId,
+          localityId: city,
+          countryLabel: s.country,
+          regionLabel: s.region,
+          districtLabel: s.district,
+          localityLabel: s.city,
+          onCountryChanged: onCountryChanged,
+          onRegionChanged: onRegionChanged,
+          onDistrictChanged: onDistrictChanged,
+          onLocalityChanged: onCityChanged,
         ),
       ],
     );

@@ -1,3 +1,5 @@
+import 'package:admin/core/l10n/admin_locale_provider.dart';
+import 'package:admin/core/widgets/admin_language_button.dart';
 import 'package:admin/core/widgets/admin_sidebar.dart';
 import 'package:admin/features/auth/presentation/providers/admin_auth_providers.dart';
 import 'package:admin/features/dashboard/presentation/pages/dashboard_page.dart';
@@ -32,10 +34,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(AdminSidebar.destinations[_selectedIndex].$2),
+            title: Text(adminDestinationLabels(ref)[_selectedIndex]),
             actions: [
+              const AdminLanguageButton(),
               IconButton(
-                tooltip: 'Sign out',
+                tooltip: ref.str.signOut,
                 icon: const Icon(Icons.logout),
                 onPressed: () =>
                     ref.read(adminAuthControllerProvider).signOut(),

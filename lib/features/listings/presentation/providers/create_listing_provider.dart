@@ -28,6 +28,16 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
       state = state.copyWith(priceText: value, clearError: true);
   void setCategory(ListingCategory? value) =>
       state = state.copyWith(category: value, clearError: true);
+
+  void setCountryCode(String? value) =>
+      state = state.copyWith(countryCode: value, clearError: true);
+
+  void setRegionId(String? value) =>
+      state = state.copyWith(regionId: value, clearError: true);
+
+  void setDistrictId(String? value) =>
+      state = state.copyWith(districtId: value, clearError: true);
+
   void setCity(String? value) => state = state.copyWith(city: value, clearError: true);
 
   void goToStep(int step) => state = state.copyWith(currentStep: step, clearError: true);
@@ -192,6 +202,9 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
       price: state.price!,
       category: state.category!,
       city: state.city!,
+      countryCode: state.countryCode,
+      regionId: state.regionId,
+      districtId: state.districtId,
       images: state.imageUrls,
       ownerId: user.id,
       ownerName: user.displayName,
@@ -245,13 +258,17 @@ class CreateListingNotifier extends Notifier<CreateListingState> {
   void reset() => state = const CreateListingState();
 
   void loadForEdit(ListingEntity listing) {
+    final loc = MarketGeography.localityById(listing.city);
     state = CreateListingState(
       listingId: listing.id,
       title: listing.title,
       description: listing.description,
       priceText: listing.price.toString(),
       category: listing.category,
-      city: listing.city,
+      countryCode: loc?.countryCode,
+      regionId: loc?.regionId,
+      districtId: loc?.districtId,
+      city: loc?.id ?? listing.city,
       images: [
         for (var i = 0; i < listing.images.length; i++)
           SelectedListingImage(

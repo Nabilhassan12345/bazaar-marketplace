@@ -81,7 +81,7 @@ Future<void> main(List<String> args) async {
             },
           },
         },
-        'preferredLanguage': _str('en'),
+        'preferredLanguage': _str('fr'),
         'createdAt': _ts(now),
         'updatedAt': _ts(now),
       },

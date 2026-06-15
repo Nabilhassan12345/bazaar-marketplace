@@ -17,6 +17,7 @@ import 'dart:io' show Platform, exitCode, stderr;
 
 import 'package:http/http.dart' as http;
 import 'package:marketplace_shared/constants/collection_names.dart';
+import 'package:marketplace_shared/constants/market_geography.dart';
 import 'package:marketplace_shared/enums/listing_category.dart';
 import 'package:marketplace_shared/enums/listing_status.dart';
 import 'package:marketplace_shared/utils/search_tokens.dart';
@@ -112,72 +113,72 @@ const _secondhandImages = [
 ];
 
 final _carListings = [
-  ('Toyota Corolla 2020', 8500.0, 'New York'),
-  ('BMW 3 Series 2019', 22000.0, 'Los Angeles'),
-  ('Ford F-150 2021', 31000.0, 'Chicago'),
-  ('Honda Civic 2018', 11000.0, 'Houston'),
-  ('Tesla Model 3 2022', 38000.0, 'San Francisco'),
-  ('Mercedes-Benz C-Class 2020', 29500.0, 'Phoenix'),
-  ('Chevrolet Silverado 2019', 27500.0, 'Philadelphia'),
-  ('Nissan Altima 2021', 19500.0, 'San Antonio'),
-  ('Audi A4 2018', 21000.0, 'San Diego'),
-  ('Jeep Wrangler 2020', 33000.0, 'Dallas'),
-  ('Subaru Outback 2021', 26500.0, 'San Jose'),
-  ('Volkswagen Jetta 2019', 14500.0, 'Austin'),
-  ('Lexus RX 350 2020', 36500.0, 'Jacksonville'),
-  ('Mazda CX-5 2021', 24000.0, 'Columbus'),
-  ('Kia Telluride 2022', 35500.0, 'Charlotte'),
-  ('Hyundai Sonata 2020', 16800.0, 'Indianapolis'),
-  ('Porsche Cayenne 2019', 52000.0, 'Seattle'),
-  ('Volvo XC60 2021', 38900.0, 'Denver'),
-  ('Ram 1500 2020', 29900.0, 'Nashville'),
-  ('Toyota RAV4 2022', 28900.0, 'Boston'),
+  ('Toyota Corolla 2020', 5200000.0, 'bf-ouagadougou'),
+  ('Peugeot 301 2019', 4500000.0, 'ci-abidjan'),
+  ('Hyundai Tucson 2021', 8900000.0, 'bf-bobo-dioulasso'),
+  ('Toyota Hilux 2018', 12500000.0, 'sd-khartoum'),
+  ('Renault Duster 2020', 6800000.0, 'ci-bouake'),
+  ('Mercedes C200 2019', 15000000.0, 'sd-omdurman'),
+  ('Nissan Patrol 2017', 18000000.0, 'ci-daloa'),
+  ('Suzuki Swift 2021', 4200000.0, 'bf-koudougou'),
+  ('Mitsubishi Pajero 2018', 11000000.0, 'sd-port-sudan'),
+  ('Kia Rio 2020', 4800000.0, 'ci-yamoussoukro'),
+  ('Ford Ranger 2019', 13500000.0, 'ci-san-pedro'),
+  ('Honda CR-V 2021', 9500000.0, 'ci-korhogo'),
+  ('Toyota Yaris 2022', 5500000.0, 'bf-ouahigouya'),
+  ('Chevrolet Spark 2018', 3200000.0, 'sd-kassala'),
+  ('Volkswagen Golf 2020', 7200000.0, 'ci-man'),
+  ('Mazda 3 2019', 6100000.0, 'bf-banfora'),
+  ('Isuzu D-Max 2020', 10200000.0, 'sd-nyala'),
+  ('Toyota Land Cruiser 2016', 25000000.0, 'ci-gagnoa'),
+  ('Peugeot 208 2021', 4900000.0, 'sd-el-obeid'),
+  ('Hyundai Accent 2019', 4100000.0, 'sd-wad-madani'),
 ];
 
 final _houseListings = [
-  ('2BR Apartment for rent', 1800.0, 'Austin'),
-  ('3BR House for sale', 320000.0, 'Dallas'),
-  ('Studio Apartment', 950.0, 'Seattle'),
-  ('4BR Villa for sale', 480000.0, 'Miami'),
-  ('1BR Condo for rent', 1400.0, 'Chicago'),
-  ('5BR Family Home for sale', 625000.0, 'Atlanta'),
-  ('2BR Loft for rent', 2100.0, 'San Francisco'),
-  ('3BR Townhouse for sale', 410000.0, 'Denver'),
-  ('Studio near downtown', 1100.0, 'Portland'),
-  ('4BR Suburban Home for sale', 395000.0, 'Phoenix'),
-  ('2BR Beach Apartment for rent', 2400.0, 'San Diego'),
-  ('3BR Ranch for sale', 285000.0, 'Nashville'),
-  ('1BR City Flat for rent', 1250.0, 'Boston'),
-  ('6BR Estate for sale', 890000.0, 'Los Angeles'),
-  ('2BR Garden Apartment for rent', 1650.0, 'Minneapolis'),
-  ('3BR Craftsman for sale', 445000.0, 'Raleigh'),
-  ('4BR Lake House for sale', 550000.0, 'Detroit'),
-  ('2BR Penthouse for rent', 3200.0, 'New York'),
-  ('3BR Bungalow for sale', 310000.0, 'Tampa'),
-  ('1BR Micro-Apartment for rent', 875.0, 'Las Vegas'),
+  ('Appartement 2 chambres à louer', 85000.0, 'bf-ouagadougou'),
+  ('Maison 3 chambres à vendre', 45000000.0, 'ci-abidjan'),
+  ('Studio meublé', 120000.0, 'bf-bobo-dioulasso'),
+  ('Villa 4 chambres à vendre', 95000000.0, 'sd-khartoum'),
+  ('Appartement 1 chambre', 65000.0, 'ci-bouake'),
+  ('Maison familiale 5 chambres', 72000000.0, 'sd-omdurman'),
+  ('Loft 2 chambres à louer', 150000.0, 'ci-daloa'),
+  ('Maison 3 chambres à vendre', 38000000.0, 'bf-koudougou'),
+  ('Studio centre-ville', 90000.0, 'sd-port-sudan'),
+  ('Maison 4 chambres', 55000000.0, 'ci-yamoussoukro'),
+  ('Appartement bord de mer', 200000.0, 'ci-san-pedro'),
+  ('Maison 3 chambres', 32000000.0, 'ci-korhogo'),
+  ('Appartement 1 chambre', 75000.0, 'sd-kassala'),
+  ('Villa de luxe', 120000000.0, 'ci-abidjan'),
+  ('Appartement jardin', 110000.0, 'bf-ouahigouya'),
+  ('Maison 3 chambres', 41000000.0, 'ci-man'),
+  ('Maison 4 chambres au lac', 48000000.0, 'bf-banfora'),
+  ('Penthouse 2 chambres', 280000.0, 'sd-khartoum'),
+  ('Bungalow 3 chambres', 35000000.0, 'ci-gagnoa'),
+  ('Micro-appartement', 55000.0, 'sd-atbara'),
 ];
 
 final _secondhandListings = [
-  ('iPhone 14 Pro 256GB', 720.0, 'Denver'),
-  ('PlayStation 5', 420.0, 'Nashville'),
-  ('MacBook Pro M2', 1100.0, 'Boston'),
-  ('Samsung 65" TV', 480.0, 'Atlanta'),
-  ('Road Bicycle', 350.0, 'Portland'),
-  ('iPad Air 5th Gen', 480.0, 'Austin'),
-  ('Nintendo Switch OLED', 280.0, 'Seattle'),
-  ('Sony WH-1000XM5 Headphones', 220.0, 'Chicago'),
-  ('Dyson V15 Vacuum', 390.0, 'Dallas'),
-  ('Canon EOS R6 Camera', 1650.0, 'Los Angeles'),
-  ('IKEA KALLAX Shelf Unit', 65.0, 'Phoenix'),
-  ('KitchenAid Stand Mixer', 210.0, 'Miami'),
-  ('Garmin Fenix 7 Watch', 520.0, 'San Francisco'),
-  ('Xbox Series X', 400.0, 'Houston'),
-  ('Bose SoundLink Speaker', 95.0, 'Philadelphia'),
-  ('Electric Scooter', 275.0, 'San Diego'),
-  ('Leather Office Chair', 140.0, 'Columbus'),
-  ('Espresso Machine', 320.0, 'Charlotte'),
-  ('DJI Mini 3 Drone', 580.0, 'Denver'),
-  ('Vintage Vinyl Record Collection', 180.0, 'Nashville'),
+  ('iPhone 14 Pro 256 Go', 420000.0, 'bf-ouagadougou'),
+  ('PlayStation 5', 280000.0, 'ci-abidjan'),
+  ('MacBook Pro M2', 750000.0, 'bf-bobo-dioulasso'),
+  ('Samsung TV 65"', 320000.0, 'sd-khartoum'),
+  ('Vélo de route', 85000.0, 'ci-bouake'),
+  ('iPad Air 5e gen', 290000.0, 'ci-daloa'),
+  ('Nintendo Switch OLED', 180000.0, 'bf-koudougou'),
+  ('Casque Sony WH-1000XM5', 145000.0, 'sd-omdurman'),
+  ('Aspirateur Dyson V15', 220000.0, 'ci-yamoussoukro'),
+  ('Appareil photo Canon EOS R6', 680000.0, 'sd-port-sudan'),
+  ('Étagère IKEA KALLAX', 35000.0, 'ci-san-pedro'),
+  ('Robot cuisine KitchenAid', 120000.0, 'ci-korhogo'),
+  ('Montre Garmin Fenix 7', 310000.0, 'sd-kassala'),
+  ('Xbox Series X', 260000.0, 'ci-man'),
+  ('Enceinte Bose SoundLink', 65000.0, 'bf-ouahigouya'),
+  ('Trottinette électrique', 95000.0, 'sd-nyala'),
+  ('Chaise de bureau cuir', 55000.0, 'bf-banfora'),
+  ('Machine à espresso', 110000.0, 'sd-el-obeid'),
+  ('Drone DJI Mini 3', 380000.0, 'sd-wad-madani'),
+  ('Collection vinyles vintage', 75000.0, 'ci-gagnoa'),
 ];
 
 const _seedSellers = [
@@ -193,16 +194,16 @@ const _seedSellers = [
 
 final _reviewerCarListings = [
   (
-    'Honda Accord 2021 — App Review Demo',
-    19500.0,
-    'San Francisco',
-    'Well-maintained sedan for App Store review demo. Single owner, full service history.',
+    'Honda Accord 2021 — Démo',
+    12500000.0,
+    'ci-abidjan',
+    'Berline bien entretenue pour la démonstration. Un seul propriétaire.',
   ),
   (
     'Toyota Camry 2020 — App Review Demo',
-    17800.0,
-    'Oakland',
-    'Reliable daily driver listed for marketplace review testing. Clean title, low mileage.',
+    17800000.0,
+    'bf-ouagadougou',
+    'Véhicule fiable pour les tests de revue. Bon état, faible kilométrage.',
   ),
 ];
 
@@ -251,16 +252,17 @@ Future<void> main(List<String> args) async {
 
   Future<void> writeListings({
     required ListingCategory category,
-    required List<(String title, double price, String city)> items,
+    required List<(String title, double price, String localityId)> items,
     required List<List<String>> imageSets,
     required String idPrefix,
   }) async {
     for (var i = 0; i < items.length; i++) {
-      final (title, price, city) = items[i];
+      final (title, price, localityId) = items[i];
       final seller = _seedSellers[i % _seedSellers.length];
       final id = '${idPrefix}_${(i + 1).toString().padLeft(2, '0')}';
       final images = imageSets[i % imageSets.length];
       final createdAt = now.subtract(Duration(days: 60 - i));
+      final cityLabel = MarketGeography.localityLabel(localityId, 'fr');
 
       await _setDocument(
         adminAuth.idToken,
@@ -268,10 +270,10 @@ Future<void> main(List<String> args) async {
         _listingFields(
           title: title,
           description:
-              '$title available in $city. Excellent condition, priced to sell. Contact seller for details.',
+              '$title disponible à $cityLabel. Excellent état, prix attractif. Contactez le vendeur pour plus de détails.',
           price: price,
           category: category,
-          city: city,
+          localityId: localityId,
           images: images,
           ownerId: seller.$1,
           ownerName: seller.$2,
@@ -374,7 +376,7 @@ Future<void> _seedReviewerAccount(
           },
         },
       },
-      'preferredLanguage': _str('en'),
+      'preferredLanguage': _str('fr'),
       'seedTag': _str(_seedTag),
       'createdAt': _ts(now),
       'updatedAt': _ts(now),
@@ -385,7 +387,7 @@ Future<void> _seedReviewerAccount(
   print('   ✓ Firestore profile: users/$uid');
 
   for (var i = 0; i < _reviewerCarListings.length; i++) {
-    final (title, price, city, description) = _reviewerCarListings[i];
+    final (title, price, localityId, description) = _reviewerCarListings[i];
     final id = 'seed_reviewer_car_${i + 1}';
     final images = _carImages[i % _carImages.length];
     final createdAt = now.subtract(Duration(days: 5 - i));
@@ -398,7 +400,7 @@ Future<void> _seedReviewerAccount(
         description: description,
         price: price,
         category: ListingCategory.cars,
-        city: city,
+        localityId: localityId,
         images: images,
         ownerId: uid,
         ownerName: 'App Reviewer',
@@ -459,7 +461,7 @@ Map<String, dynamic> _listingFields({
   required String description,
   required double price,
   required ListingCategory category,
-  required String city,
+  required String localityId,
   required List<String> images,
   required String ownerId,
   required String ownerName,
@@ -468,12 +470,20 @@ Map<String, dynamic> _listingFields({
   required int viewCount,
   required bool isFeatured,
 }) {
+  final locality = MarketGeography.localityById(localityId);
+  if (locality == null) {
+    _fail('Unknown locality id: $localityId');
+  }
+
   return {
     'title': _str(title),
     'description': _str(description),
     'price': _double(price),
     'category': _str(category.value),
-    'city': _str(city),
+    'city': _str(localityId),
+    'countryCode': _str(locality.countryCode),
+    'regionId': _str(locality.regionId),
+    'districtId': _str(locality.districtId),
     'images': _strArray(images),
     'ownerId': _str(ownerId),
     'ownerName': _str(ownerName),

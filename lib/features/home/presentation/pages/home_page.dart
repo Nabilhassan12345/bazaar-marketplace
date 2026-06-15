@@ -1,3 +1,4 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
 import 'package:bazaar/features/home/presentation/widgets/category_chips.dart';
@@ -45,10 +46,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final feed = ref.watch(homeFeedProvider);
     final notifier = ref.read(homeFeedProvider.notifier);
+    final s = ref.str;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bazaar'),
+        title: Text(s.appName),
         actions: [
           IconButton(
             icon: const Icon(Icons.category_outlined),

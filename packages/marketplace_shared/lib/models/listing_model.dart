@@ -20,6 +20,9 @@ class ListingModel {
     required this.updatedAt,
     required this.viewCount,
     required this.isFeatured,
+    this.countryCode,
+    this.regionId,
+    this.districtId,
   });
 
   final String id;
@@ -28,6 +31,9 @@ class ListingModel {
   final double price;
   final ListingCategory category;
   final String city;
+  final String? countryCode;
+  final String? regionId;
+  final String? districtId;
   final List<String> images;
   final String ownerId;
   final String ownerName;
@@ -51,6 +57,9 @@ class ListingModel {
       price: (data['price'] as num?)?.toDouble() ?? 0,
       category: ListingCategory.fromValue(data['category'] as String? ?? ''),
       city: data['city'] as String? ?? '',
+      countryCode: data['countryCode'] as String?,
+      regionId: data['regionId'] as String?,
+      districtId: data['districtId'] as String?,
       images: List<String>.from(data['images'] as List? ?? []),
       ownerId: data['ownerId'] as String? ?? data['sellerId'] as String? ?? '',
       ownerName: data['ownerName'] as String? ?? '',
@@ -70,6 +79,9 @@ class ListingModel {
       'price': price,
       'category': category.value,
       'city': city,
+      if (countryCode != null) 'countryCode': countryCode,
+      if (regionId != null) 'regionId': regionId,
+      if (districtId != null) 'districtId': districtId,
       'images': images,
       'ownerId': ownerId,
       'ownerName': ownerName,
@@ -83,7 +95,6 @@ class ListingModel {
         title: title,
         description: description,
       ),
-      // Required by Firestore security rules.
       'sellerId': ownerId,
       'isDeleted': false,
       'favoriteCount': 0,
@@ -96,6 +107,9 @@ class ListingModel {
     double? price,
     ListingCategory? category,
     String? city,
+    String? countryCode,
+    String? regionId,
+    String? districtId,
     List<String>? images,
     ListingStatus? status,
     DateTime? updatedAt,
@@ -107,6 +121,9 @@ class ListingModel {
       price: price ?? this.price,
       category: category ?? this.category,
       city: city ?? this.city,
+      countryCode: countryCode ?? this.countryCode,
+      regionId: regionId ?? this.regionId,
+      districtId: districtId ?? this.districtId,
       images: images ?? this.images,
       ownerId: ownerId,
       ownerName: ownerName,

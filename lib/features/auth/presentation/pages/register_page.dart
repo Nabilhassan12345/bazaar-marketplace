@@ -1,5 +1,6 @@
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_providers.dart';
 import 'package:bazaar/features/auth/presentation/providers/auth_state.dart';
 import 'package:bazaar/features/auth/presentation/widgets/auth_text_field.dart';
@@ -53,9 +54,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     final authStatus = ref.watch(authControllerProvider);
     final isLoading = authStatus is AuthLoading;
+    final s = ref.str;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Create account')),
+      appBar: AppBar(title: Text(s.createAccount)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -66,10 +68,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               children: [
                 AuthTextField(
                   controller: _nameController,
-                  label: 'Display name',
+                  label: s.displayName,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Name is required';
+                      return s.nameRequired;
                     }
                     return null;
                   },
@@ -77,11 +79,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
+                  label: s.email,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Email is required';
+                      return s.emailRequired;
                     }
                     return null;
                   },
@@ -89,11 +91,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Password',
+                  label: s.password,
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return s.passwordMinLength;
                     }
                     return null;
                   },
@@ -111,12 +113,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Sign Up'),
+                      : Text(s.signUp),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => context.go(RouteNames.login),
-                  child: const Text('Already have an account? Sign in'),
+                  child: Text(s.hasAccountSignIn),
                 ),
                 const LegalLinksFooter(),
               ],

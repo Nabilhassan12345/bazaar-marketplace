@@ -1,3 +1,4 @@
+import 'package:bazaar/core/l10n/locale_provider.dart';
 import 'package:bazaar/config/routes/route_names.dart';
 import 'package:bazaar/config/theme/app_colors.dart';
 import 'package:bazaar/core/widgets/empty_state.dart';
@@ -14,20 +15,21 @@ class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final s = ref.str;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Log out?'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text(s.logoutConfirmTitle),
+        content: Text(s.logoutConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(s.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Log out'),
+            child: Text(s.logout),
           ),
         ],
       ),
@@ -44,9 +46,10 @@ class ProfilePage extends ConsumerWidget {
     final profileAsync = ref.watch(currentUserProfileProvider);
     final favoritesCount = ref.watch(favoritesCountProvider);
     final myListingsAsync = ref.watch(myListingsProvider);
+    final s = ref.str;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: Text(s.profile)),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorStateView(

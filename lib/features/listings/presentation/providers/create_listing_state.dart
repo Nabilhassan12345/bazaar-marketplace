@@ -47,6 +47,9 @@ class CreateListingState {
     this.description = '',
     this.priceText = '',
     this.category,
+    this.countryCode,
+    this.regionId,
+    this.districtId,
     this.city,
     this.images = const [],
     this.listingId,
@@ -64,6 +67,10 @@ class CreateListingState {
   final String description;
   final String priceText;
   final ListingCategory? category;
+  final String? countryCode;
+  final String? regionId;
+  final String? districtId;
+  /// Locality id stored in Firestore `city` field.
   final String? city;
   final List<SelectedListingImage> images;
   final String? listingId;
@@ -81,6 +88,9 @@ class CreateListingState {
       price != null &&
       price! > 0 &&
       category != null &&
+      countryCode != null &&
+      regionId != null &&
+      districtId != null &&
       city != null;
 
   bool get canProceedFromImages =>
@@ -98,6 +108,9 @@ class CreateListingState {
     String? description,
     String? priceText,
     ListingCategory? category,
+    String? countryCode,
+    String? regionId,
+    String? districtId,
     String? city,
     List<SelectedListingImage>? images,
     String? listingId,
@@ -114,6 +127,9 @@ class CreateListingState {
       description: description ?? this.description,
       priceText: priceText ?? this.priceText,
       category: category ?? this.category,
+      countryCode: countryCode ?? this.countryCode,
+      regionId: regionId ?? this.regionId,
+      districtId: districtId ?? this.districtId,
       city: city ?? this.city,
       images: images ?? this.images,
       listingId: listingId ?? this.listingId,
